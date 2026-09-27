@@ -2,6 +2,14 @@
 
 All notable changes to ChangeGuard are documented here. The project follows Semantic Versioning while it remains in the 0.x phase.
 
+## [0.4.2] - 2026-09-27
+
+### Correctness
+
+- Completed explicit metadata for every production rule, including official documentation links and redaction expectations.
+- Added catalogue completeness tests so emitted rule IDs and catalogue entries cannot drift silently.
+- Refreshed current Action references and corrected the roadmap/support matrix after the v0.4.1 audit.
+
 ## [0.4.1] - 2026-09-27
 
 ### Documentation and packaging
