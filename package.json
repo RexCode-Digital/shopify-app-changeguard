@@ -51,7 +51,14 @@
     "provenance": true
   },
   "files": [
-    "dist/"
+    "dist/cli.js",
+    "dist/client-id.js",
+    "dist/core.js",
+    "dist/git-refs.js",
+    "dist/pr-review.js",
+    "dist/summary.js",
+    "dist/urls.js",
+    "dist/webhooks.js"
   ],
   "author": "Efe Gökdemir"
 }
