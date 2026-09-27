@@ -15,11 +15,11 @@ jobs:
   changeguard:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: efegokdemir/shopify-app-changeguard@<reviewed-full-commit-sha>
+      - uses: efegokdemir/shopify-app-changeguard@04bb33fa70c59600cbbd656d923049049034994a # v0.2.0
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -29,14 +29,11 @@ The Action contains its production dependencies and compiled code. Consumer jobs
 
 ## CLI
 
-The `0.2.0` package metadata and tarball are prepared, but npm publication is
-deliberately gated on human review and the release workflow. Until the package
-appears on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard),
-run the CLI from a clone or install a reviewed tarball produced by `npm pack`.
+The `0.2.0` package is published on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard)
+with GitHub Actions provenance.
 
 ```sh
-npm ci --ignore-scripts
-npm run build
+npm install --save-dev shopify-app-changeguard
 npx changeguard --before examples/before.toml --after examples/after.toml --json
 npx changeguard --base-ref main --head-ref HEAD --file shopify.app.toml --fail-on review
 ```
