@@ -25,7 +25,7 @@ jobs:
           head_sha: ${{ github.event.pull_request.head.sha }}
 ```
 
-The Action contains its production dependencies and compiled code. Consumer jobs do not install npm dependencies or compile ChangeGuard. Pin a reviewed full commit SHA; do not use `main` for a security-sensitive workflow. See [the Action guide](docs/github-action.md).
+The Action contains its production dependencies and compiled code. Consumer jobs do not install npm dependencies or compile ChangeGuard. Pin a reviewed full commit SHA; do not use `main` for a security-sensitive workflow. See [the Action guide](docs/github-action.md) and the [copy-paste workflow example](examples/changeguard-workflow.yml).
 
 ## CLI
 
