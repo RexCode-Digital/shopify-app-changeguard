@@ -10,6 +10,7 @@
     "changeguard": "dist/cli.js"
   },
   "scripts": {
+    "prebuild": "node scripts/write-version.mjs",
     "build": "tsc -p tsconfig.json && ncc build dist/action.js -o dist/action --minify",
     "test": "npm run build && node --test tests/*.test.mjs",
     "check": "node dist/cli.js",
@@ -56,10 +57,12 @@
     "dist/core.js",
     "dist/git-refs.js",
     "dist/pr-review.js",
+    "dist/rule-catalog.js",
     "dist/summary.js",
     "dist/urls.js",
     "dist/webhooks.js",
-    "dist/events.js"
+    "dist/events.js",
+    "dist/generated-version.js"
   ],
   "author": "Efe Gökdemir"
 }

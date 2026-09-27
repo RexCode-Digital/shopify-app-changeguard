@@ -26,6 +26,12 @@ outputs:
     description: Highest finding severity, or none
   report:
     description: JSON review report
+  reviewed_file_count:
+    description: Number of changed Shopify app configuration files reviewed
+  unreviewed_count:
+    description: Number of changed configuration files that could not be reviewed
+  rule_ids:
+    description: Comma-separated stable rule IDs present in the report
 
 runs:
   using: node24

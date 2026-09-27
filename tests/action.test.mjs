@@ -55,13 +55,14 @@ test('bundled Action emits outputs and succeeds for informational findings', () 
   fixture(newConfig, ({ dir, base, head }) => {
     const result = run(dir, base, head, 'never');
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
-    const report = JSON.parse(result.stdout);
-    assert.equal(report.files[0].findings.length, 1);
     const outputs = readFileSync(join(dir, 'output.txt'), 'utf8');
     assert.match(outputs, /outcome<<ghadelimiter_/);
     assert.match(outputs, /finding_count<<ghadelimiter_/);
     assert.match(outputs, /highest_severity<<ghadelimiter_/);
     assert.match(outputs, /report<<ghadelimiter_/);
+    assert.match(outputs, /reviewed_file_count<<ghadelimiter_/);
+    assert.match(outputs, /unreviewed_count<<ghadelimiter_/);
+    assert.match(outputs, /rule_ids<<ghadelimiter_/);
     assert.match(outputs, /findings/);
     assert.match(readFileSync(join(dir, 'summary.md'), 'utf8'), /Manual review recommended/);
   });
@@ -79,8 +80,8 @@ test('bundled Action fail_on unreviewed fails closed for malformed configuration
   fixture('broken = "unterminated\n', ({ dir, base, head }) => {
     const result = run(dir, base, head, 'unreviewed');
     assert.equal(result.status, 1);
-    const report = JSON.parse(result.stdout.split('\n::error::', 1)[0]);
-    assert.equal(report.unreviewed.length, 1);
+    const outputs = readFileSync(join(dir, 'output.txt'), 'utf8');
+    assert.match(outputs, /unreviewed_count<<ghadelimiter_/);
     assert.match(result.stdout + result.stderr, /Review incomplete/);
   });
 });

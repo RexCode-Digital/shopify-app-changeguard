@@ -10,6 +10,16 @@ Committed Git comparison:
 
 ```sh
 changeguard --base-ref main --head-ref HEAD --file shopify.app.toml [--json]
+
+Repository-wide Git comparison:
+
+```sh
+changeguard --base-ref main --head-ref HEAD --all-configs [--json] [--fail-on never|review|unreviewed]
 ```
 
-`--fail-on never` is the compatibility default. `review` exits 1 when findings exist. `unreviewed` is equivalent for direct comparisons and is reserved for Action policy. Invalid input, malformed TOML, missing files, and unreviewable Git changes exit 2. Output is deterministic and findings do not include protected configuration values.
+The repository-wide mode discovers `shopify.app.toml` and named
+`shopify.app.<config-name>.toml` files, reviews additions, deletions, renames,
+and modifications, and caps a single review at 50 changed configuration files.
+```
+
+`--fail-on never` is the compatibility default. `review` exits 1 when findings exist. `unreviewed` exits 2 when a Git configuration cannot be reviewed. Invalid input, malformed TOML, missing files, and unsafe Git changes exit 2. Output is deterministic and findings do not include protected configuration values.

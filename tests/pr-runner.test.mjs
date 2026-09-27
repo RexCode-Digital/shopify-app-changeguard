@@ -68,13 +68,15 @@ test('ignores changes to unrelated files', () => {
   });
 });
 
-test('fails closed when a Shopify configuration is added', () => {
+test('reviews when a Shopify configuration is added', () => {
   fixture(({ dir, commit, run, head }) => {
     writeFileSync(join(dir, 'shopify.app.production.toml'), oldConfig);
     const next = commit('Add production configuration');
     const result = run(head, next);
-    assert.equal(result.status, 2);
-    assert.equal(JSON.parse(result.stdout).unreviewed.length, 1);
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.unreviewed.length, 0);
+    assert.equal(report.files[0].findings[0].ruleId, 'CONFIG_ADDED');
   });
 });
 
@@ -194,5 +196,30 @@ test('fails safely when the summary cannot be written', () => {
     assert.equal(JSON.parse(result.stdout).files.length, 1);
     assert.match(result.stderr, /Unable to write GitHub Actions summary/);
     assert.ok(!result.stderr.includes(dir));
+  });
+});
+
+test('reports a configuration rename as a lifecycle finding', () => {
+  fixture(({ dir, git, commit, run, base }) => {
+    git('mv', 'shopify.app.toml', 'shopify.app.staging.toml');
+    writeFileSync(join(dir, 'shopify.app.staging.toml'), oldConfig);
+    const head = commit('Rename configuration');
+    const result = run(base, head);
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.files[0].status, 'R');
+    assert.equal(report.files[0].findings[0].ruleId, 'CONFIG_RENAMED');
+  });
+});
+
+test('reports deleted configuration files as lifecycle findings', () => {
+  fixture(({ git, commit, run, base }) => {
+    git('rm', 'shopify.app.toml');
+    const head = commit('Delete configuration');
+    const result = run(base, head);
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.files[0].findings[0].ruleId, 'CONFIG_REMOVED');
+    assert.equal(report.unreviewed.length, 0);
   });
 });

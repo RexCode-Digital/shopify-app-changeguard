@@ -2,65 +2,82 @@ import { spawnSync } from 'node:child_process';
 import { compareConfigs } from './core.js';
 import { readConfigAtRef } from './git-refs.js';
 const validSha = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/;
-const configFile = /(^|\/)shopify\.app(?:\.[^/]+)?\.toml$/;
+export const configFile = /(^|\/)shopify\.app(?:\.[^/]+)?\.toml$/;
 function gitDiff(ancestor, head) {
-    const result = spawnSync('git', [
-        'diff', '--no-renames', '--name-status', '-z', ancestor, head, '--',
-    ], { encoding: 'buffer', maxBuffer: 4 * 1024 * 1024 });
+    const result = spawnSync('git', ['diff', '--find-renames=20%', '--name-status', '-z', ancestor, head, '--'], { encoding: 'buffer', maxBuffer: 4 * 1024 * 1024 });
     if (result.error || result.status !== 0)
         throw new Error('Unable to inspect the Git changes.');
     const parts = result.stdout.toString('utf8').split('\0');
     if (parts.at(-1) === '')
         parts.pop();
-    if (parts.length % 2 !== 0)
-        throw new Error('Unexpected Git diff output.');
-    return parts;
-}
-export function reviewPullRequest(base, head) {
-    if (!validSha.test(base) || !validSha.test(head)) {
-        throw new Error('Valid base and head commit SHAs are required.');
-    }
-    const ancestorResult = spawnSync('git', ['merge-base', base, head], {
-        encoding: 'utf8', maxBuffer: 4096,
-    });
-    const ancestor = ancestorResult.stdout?.trim() ?? '';
-    if (ancestorResult.error || ancestorResult.status !== 0 || !validSha.test(ancestor)) {
-        throw new Error('Unable to determine the common Git ancestor.');
-    }
-    const parts = gitDiff(ancestor, head);
-    const changed = [];
-    for (let i = 0; i < parts.length; i += 2) {
-        const status = parts[i];
-        const path = parts[i + 1];
-        if (typeof status !== 'string' || typeof path !== 'string') {
-            throw new Error('Unexpected Git diff output.');
+    const changes = [];
+    for (let i = 0; i < parts.length;) {
+        const token = parts[i++];
+        if (!token)
+            continue;
+        const status = token[0];
+        if (!status)
+            throw new Error('Unexpected Git diff status.');
+        if (status === 'R' || status === 'C') {
+            const previousPath = parts[i++];
+            const path = parts[i++];
+            if (!previousPath || !path)
+                throw new Error('Unexpected Git rename output.');
+            changes.push({ status: 'R', previousPath, path });
         }
-        if (configFile.test(path))
-            changed.push({ status, path });
+        else {
+            const path = parts[i++];
+            if (!path || !['M', 'A', 'D'].includes(status))
+                throw new Error('Unexpected Git diff output.');
+            changes.push({ status: status, path });
+        }
     }
+    return changes;
+}
+function commonAncestor(base, head) {
+    const result = spawnSync('git', ['merge-base', base, head], { encoding: 'utf8', maxBuffer: 4096 });
+    const ancestor = result.stdout?.trim() ?? '';
+    if (result.error || result.status !== 0 || !validSha.test(ancestor))
+        throw new Error('Unable to determine the common Git ancestor.');
+    return ancestor;
+}
+function lifecycleFinding(ruleId, field, summary) {
+    return { ruleId, severity: 'review', field, summary, category: 'configuration-lifecycle', documentationUrl: 'https://shopify.dev/docs/apps/build/cli-for-apps/manage-app-config-files' };
+}
+export function reviewGitRange(base, head) {
+    if (!validSha.test(base) || !validSha.test(head))
+        throw new Error('Valid base and head commit SHAs are required.');
+    const ancestor = commonAncestor(base, head);
+    const changed = gitDiff(ancestor, head).filter((item) => configFile.test(item.path) || (item.previousPath ? configFile.test(item.previousPath) : false));
     if (changed.length > 50)
         throw new Error('Too many configuration changes for this review.');
     const files = [];
     const unreviewed = [];
-    for (const { status, path } of changed) {
-        if (status !== 'M') {
-            unreviewed.push({ path, reason: 'Added, deleted or otherwise unsupported change.' });
-            continue;
-        }
+    for (const change of changed) {
         try {
-            files.push({
-                path,
-                findings: compareConfigs(readConfigAtRef(ancestor, path), readConfigAtRef(head, path)),
-            });
+            if (change.status === 'M') {
+                files.push({ status: 'M', path: change.path, findings: compareConfigs(readConfigAtRef(ancestor, change.path), readConfigAtRef(head, change.path)) });
+            }
+            else if (change.status === 'A') {
+                readConfigAtRef(head, change.path);
+                files.push({ status: 'A', path: change.path, findings: [lifecycleFinding('CONFIG_ADDED', 'configuration', 'Shopify app configuration file added; review the new environment and its deployment selection')] });
+            }
+            else if (change.status === 'D') {
+                files.push({ status: 'D', path: change.path, findings: [lifecycleFinding('CONFIG_REMOVED', 'configuration', 'Shopify app configuration file removed; review which environment remains deployable')] });
+            }
+            else {
+                readConfigAtRef(ancestor, change.previousPath ?? change.path);
+                readConfigAtRef(head, change.path);
+                files.push({ status: 'R', previousPath: change.previousPath, path: change.path, findings: [lifecycleFinding('CONFIG_RENAMED', 'configuration', 'Shopify app configuration file renamed; review environment selection and deployment workflows'), ...compareConfigs(readConfigAtRef(ancestor, change.previousPath ?? change.path), readConfigAtRef(head, change.path))] });
+            }
         }
         catch {
-            unreviewed.push({ path, reason: 'Configuration could not be analyzed.' });
+            unreviewed.push({ path: change.path, reason: 'Configuration could not be analyzed.' });
         }
     }
-    return {
-        schemaVersion: 1,
-        note: 'Review only; not deployment approval.',
-        files,
-        unreviewed,
-    };
+    const ruleIds = [...new Set(files.flatMap((file) => file.findings.map((finding) => finding.ruleId)))].sort();
+    return { schemaVersion: 1, note: 'Review only; not deployment approval.', files, unreviewed, changedFileCount: changed.length, reviewedFileCount: files.length, unreviewedFileCount: unreviewed.length, ruleIds };
+}
+export function reviewPullRequest(base, head) {
+    return reviewGitRange(base, head);
 }

@@ -104,3 +104,70 @@ test('keeps genuine additions and removals separate', () => {
     ].sort(),
   );
 });
+
+test('reviews high-value app configuration sections without exposing URLs', () => {
+  const before = {
+    ...cfg('read_orders'),
+    name: 'Old private name',
+    access: { admin: { embedded_app_direct_api_access: false, direct_api_mode: 'online' } },
+    customer_authentication: {
+      redirect_uris: ['https://old.example/callback'],
+      javascript_origins: ['https://old.example'],
+      logout_urls: ['https://old.example/logout'],
+    },
+    app_proxy: { url: 'https://old.example/proxy', prefix: 'apps', subpath: 'old' },
+    pos: { embedded: false },
+    app_preferences: { url: 'https://old.example/preferences' },
+    extension_directories: ['extensions'],
+  };
+  const after = {
+    ...cfg('read_orders'),
+    name: 'New private name',
+    access: { admin: { embedded_app_direct_api_access: true, direct_api_mode: 'offline' } },
+    customer_authentication: {
+      redirect_uris: ['https://new.example/callback'],
+      javascript_origins: ['https://new.example'],
+      logout_urls: ['https://new.example/logout'],
+    },
+    app_proxy: { url: 'https://new.example/proxy', prefix: 'apps', subpath: 'new' },
+    pos: { embedded: true },
+    app_preferences: { url: 'https://new.example/preferences' },
+    extension_directories: ['extensions', 'more-extensions'],
+  };
+  const findings = compareConfigs(before, after);
+  assert.deepEqual(findings.map(({ ruleId }) => ruleId).sort(), [
+    'ADMIN_DIRECT_API_ACCESS_CHANGED',
+    'ADMIN_DIRECT_API_MODE_CHANGED',
+    'APP_NAME_CHANGED',
+    'APP_PREFERENCES_URL_CHANGED',
+    'APP_PROXY_DESTINATION_CHANGED',
+    'APP_PROXY_ROUTE_CHANGED',
+    'CUSTOMER_AUTH_LOGOUT_URLS_CHANGED',
+    'CUSTOMER_AUTH_ORIGINS_CHANGED',
+    'CUSTOMER_AUTH_REDIRECTS_CHANGED',
+    'EXTENSION_DIRECTORIES_CHANGED',
+    'POS_EMBEDDED_MODE_CHANGED',
+  ].sort());
+  assert.doesNotMatch(JSON.stringify(findings), /old\.example|new\.example/);
+  assert.equal(findings.find((finding) => finding.ruleId === 'APP_NAME_CHANGED')?.category, 'identity');
+});
+
+test('ignores ordering-only discovery and customer authentication changes', () => {
+  const before = {
+    ...cfg('read_orders'),
+    customer_authentication: { redirect_uris: ['a', 'b'], javascript_origins: ['x', 'y'], logout_urls: ['z'] },
+    extension_directories: ['one', 'two'],
+  };
+  const after = {
+    ...cfg('read_orders'),
+    customer_authentication: { redirect_uris: ['b', 'a'], javascript_origins: ['y', 'x'], logout_urls: ['z', 'z'] },
+    extension_directories: ['two', 'one', 'one'],
+  };
+  assert.deepEqual(compareConfigs(before, after), []);
+});
+
+test('validates direct API and supported collection shapes', () => {
+  assert.throws(() => compareConfigs(cfg('read_orders'), { ...cfg('read_orders'), access: { admin: { direct_api_mode: 'invalid' } } }), /direct_api_mode/);
+  assert.throws(() => compareConfigs(cfg('read_orders'), { ...cfg('read_orders'), extension_directories: [''] }), /extension_directories/);
+  assert.throws(() => compareConfigs(cfg('read_orders'), { ...cfg('read_orders'), customer_authentication: { logout_urls: 'not-an-array' } }), /logout_urls/);
+});

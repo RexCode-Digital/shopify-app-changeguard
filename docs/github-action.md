@@ -31,10 +31,12 @@ The full commit SHA pins the reviewed Action version. The Action is a committed 
 No Shopify credentials or npm installation are required in the
 consuming repository.
 
-The Action reviews changed Shopify app TOML files, prints redacted JSON
-in the GitHub Actions logs and writes a job summary containing counts,
-rule IDs and an explicit review status. It exposes `outcome`,
-`finding_count`, `highest_severity`, and `report` outputs. Set `fail_on`
+The Action reviews changed Shopify app TOML files and writes a job summary
+containing counts, rule IDs, documentation links, and an explicit review
+status. It keeps TOML-derived text out of raw workflow-command output and
+exposes the structured report through outputs: `outcome`, `finding_count`,
+`reviewed_file_count`, `unreviewed_count`, `rule_ids`, `highest_severity`,
+and `report`. Set `fail_on`
 to `never`, `review`, or `unreviewed`; the default fails only when review
 is incomplete.
 
@@ -45,8 +47,8 @@ Review outcomes:
 - Review incomplete: unreviewable configurations cause the check to fail.
 
 The job summary does not print configuration values, file paths or finding
-descriptions. The JSON logs contain additional finding details, so review
-their contents before sharing them.
+descriptions. The `report` output contains structured finding details and
+should be treated as repository-sensitive automation data.
 
 ## External integration validation
 
