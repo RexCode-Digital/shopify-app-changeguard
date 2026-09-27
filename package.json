@@ -53,11 +53,5 @@
   "files": [
     "dist/"
   ],
-  "author": "Efe Gökdemir",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs",
-    "example": "examples",
-    "test": "tests"
-  }
+  "author": "Efe Gökdemir"
 }
