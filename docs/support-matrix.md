@@ -22,6 +22,6 @@ ChangeGuard reviews semantic differences between configuration revisions. It doe
 | `dev_store_url` | Intentionally ignored | It is environment-specific and may identify a private store; Shopify CLI validates it. |
 | Other root tables and fields | Intentionally ignored | Unsupported fields are not guessed or treated as a security finding. |
 | TOML syntax and complete Shopify schema | Delegated to Shopify CLI | Malformed supported structures fail closed, but ChangeGuard does not duplicate Shopify's schema validator. |
-| `shopify.extension.toml` | Not planned for v0.4.0 | Extension configuration is a separate type-specific system. |
+| `shopify.extension.toml` | Not supported in the current scope | Extension configuration is a separate type-specific system. |
 
 ChangeGuard is offline, read-only, deterministic, and independent from Shopify. It does not call Shopify APIs, approve deployments, certify security, or validate credentials.

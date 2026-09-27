@@ -8,11 +8,11 @@
 
 ## Next
 
-- Validate additional high-value fields against current Shopify documentation.
-- Add cross-platform Action fixtures and a maintained compatibility matrix.
-- Gather feedback without telemetry or unsolicited outreach.
+- Validate additional high-value fields against current Shopify documentation before adding them.
+- Strengthen real-world, privacy-safe fixture coverage across supported configuration shapes.
+- Improve evidence about external use without telemetry or unsolicited outreach.
 
 ## Later
 
-- Consider broader Events and app-proxy review only when semantics and redaction are precise.
-- Improve release provenance and maintainer evidence as real public activity develops.
+- Continue privacy and redaction hardening as new configuration fields are reviewed.
+- Keep the implementation aligned with Shopify configuration documentation and schema changes.
