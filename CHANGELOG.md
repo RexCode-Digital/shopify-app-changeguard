@@ -2,6 +2,12 @@
 
 All notable changes to ChangeGuard are documented here. The project follows Semantic Versioning while it remains in the 0.x phase.
 
+## [0.2.1] - 2026-09-27
+
+### Documentation
+
+- Refreshed the npm package documentation to reflect the public release and tested installation path.
+
 ## [0.2.0] - 2026-09-27
 
 ### Added
