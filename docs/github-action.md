@@ -20,7 +20,7 @@ with the following contents:
               fetch-depth: 0
               persist-credentials: false
 
-          - uses: efegokdemir/shopify-app-changeguard@04bb33fa70c59600cbbd656d923049049034994a # v0.2.0
+          - uses: efegokdemir/shopify-app-changeguard@b78f4f88c1e52841d8032b19ec6fd7beb653063d # v0.2.1
             with:
               base_sha: ${{ github.event.pull_request.base.sha }}
               head_sha: ${{ github.event.pull_request.head.sha }}
