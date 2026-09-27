@@ -11,8 +11,9 @@ const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.me
 const before = fileURLToPath(new URL('../examples/before.toml', import.meta.url));
 const after = fileURLToPath(new URL('../examples/after.toml', import.meta.url));
 
-function run(args) {
+function run(args, cwd = undefined) {
   return spawnSync(process.execPath, [cli, ...args], {
+    cwd,
     encoding: 'utf8',
   });
 }
@@ -48,6 +49,13 @@ test('CLI exposes help and version', () => {
   assert.equal(version.stdout.trim(), packageJson.version);
 });
 
+test('CLI version is generated from package.json during build', () => {
+  const generated = readFileSync(new URL('../src/generated-version.ts', import.meta.url), 'utf8');
+  assert.match(generated, new RegExp(`CHANGEGUARD_VERSION = "${packageJson.version.replaceAll('.', '\\.')}`));
+  const version = run(['--version']);
+  assert.equal(version.stdout.trim(), packageJson.version);
+});
+
 test('CLI can fail on informational findings', () => {
   const result = run([
     '--before', before,
@@ -73,6 +81,33 @@ test('CLI rejects malformed TOML', () => {
     ]);
 
     assert.notEqual(result.status, 0);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('CLI reviews every changed Shopify app configuration with --all-configs', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'changeguard-all-configs-'));
+  const git = (...args) => spawnSync('git', args, { cwd: directory, encoding: 'utf8' });
+  try {
+    git('init', '-q', '-b', 'main');
+    git('config', 'user.name', 'ChangeGuard Tests');
+    git('config', 'user.email', 'tests@example.invalid');
+    writeFileSync(join(directory, 'shopify.app.toml'), '[access_scopes]\nscopes = "read_orders"\n');
+    writeFileSync(join(directory, 'shopify.app.staging.toml'), '[access_scopes]\nscopes = "read_products"\n');
+    git('add', '.');
+    git('commit', '-q', '-m', 'base');
+    const base = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: directory, encoding: 'utf8' }).stdout.trim();
+    writeFileSync(join(directory, 'shopify.app.staging.toml'), '[access_scopes]\nscopes = "read_products,write_products"\n');
+    git('add', '.');
+    git('commit', '-q', '-m', 'head');
+    const head = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: directory, encoding: 'utf8' }).stdout.trim();
+    const result = run(['--base-ref', base, '--head-ref', head, '--all-configs', '--json'], directory);
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.changedFileCount, 1);
+    assert.equal(report.reviewedFileCount, 1);
+    assert.deepEqual(report.ruleIds, ['SCOPE_REQUIRED_ADDED']);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

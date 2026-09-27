@@ -37,6 +37,7 @@ with GitHub Actions provenance.
 npm install --save-dev shopify-app-changeguard
 npx changeguard --before examples/before.toml --after examples/after.toml --json
 npx changeguard --base-ref main --head-ref HEAD --file shopify.app.toml --fail-on review
+npx changeguard --base-ref main --head-ref HEAD --all-configs --json
 ```
 
 `--fail-on never` is the default. `review` exits 1 when findings exist. Invalid or unreviewable input exits 2. See [CLI reference](docs/cli.md).
@@ -47,13 +48,18 @@ npx changeguard --base-ref main --head-ref HEAD --file shopify.app.toml --fail-o
 | --- | --- |
 | Required and optional access scopes | Additions, removals, and required/optional transitions |
 | `client_id` | Added, removed, or changed, without printing the ID |
-| App settings | `application_url`, `embedded`, and `handle` changes |
+| App identity and settings | `name`, `application_url`, `embedded`, and `handle` changes |
 | OAuth | `auth.redirect_urls` set changes, without printing URLs |
+| Admin Direct API | Enablement and online/offline mode changes |
+| Customer authentication | Redirect, origin, and logout URL set changes, without printing values |
 | Installation flow | `access_scopes.use_legacy_install_flow` changes |
+| App proxy, POS, preferences | Proxy enablement/destination/route, `pos.embedded`, and preferences URL changes, without printing URLs |
+| Project discovery/build | Extension/web directory sets and automatic development URL update policy |
 | Webhooks | API version and subscription route/delivery changes, without printing destinations, topics, filters, or field names |
 | Events | Developer-preview API version and subscription changes, without printing handles, destinations, topics, triggers, queries, or filters |
+| Config lifecycle | Added, removed, or renamed named `shopify.app*.toml` files |
 
-The supported semantics are based on the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), including webhook and developer-preview Events subscription changes. Unsupported fields are ignored by direct comparison; unsupported or malformed changed files fail closed in the Action.
+The supported semantics are based on the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), including webhook and developer-preview Events subscription changes. See the [support matrix](docs/support-matrix.md) for supported, ignored, delegated, and non-planned areas. Unsupported fields are ignored by direct comparison; unsupported or malformed changed files fail closed in the Action.
 
 ## Demo and limitations
 

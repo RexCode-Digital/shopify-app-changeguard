@@ -13,10 +13,22 @@ ChangeGuard reports review findings, not approvals. Findings never include clien
 | `EMBEDDED_MODE_CHANGED` | Root `embedded` setting changes | Review App Home and authentication behaviour |
 | `APP_HANDLE_CHANGED` | Root `handle` changes | Review Shopify admin links and published app navigation |
 | `LEGACY_INSTALL_FLOW_CHANGED` | `access_scopes.use_legacy_install_flow` changes | Review OAuth and scope-management behaviour |
+| `APP_NAME_CHANGED` | Root `name` changes | Review app identity and display configuration |
+| `ADMIN_DIRECT_API_ACCESS_CHANGED` | Direct API access is enabled or disabled | Review frontend API access and authorization behaviour |
+| `ADMIN_DIRECT_API_MODE_CHANGED` | Direct API mode changes | Review online/offline token expectations |
+| `CUSTOMER_AUTH_REDIRECTS_CHANGED` / `CUSTOMER_AUTH_ORIGINS_CHANGED` / `CUSTOMER_AUTH_LOGOUT_URLS_CHANGED` | Customer authentication URL/origin sets change | Review Customer Account API authentication flows; values are redacted |
+| `APP_PROXY_ENABLED` / `APP_PROXY_DISABLED` | App proxy table is added or removed | Review storefront routing and required scopes |
+| `APP_PROXY_DESTINATION_CHANGED` | `app_proxy.url` changes | Review proxy destination without printing the URL |
+| `APP_PROXY_ROUTE_CHANGED` | `app_proxy.prefix` or `subpath` changes | Review merchant-facing proxy links |
+| `POS_EMBEDDED_MODE_CHANGED` | `pos.embedded` changes | Review Shopify POS behaviour |
+| `APP_PREFERENCES_URL_CHANGED` | `app_preferences.url` changes | Review the merchant preferences destination without printing the URL |
+| `EXTENSION_DIRECTORIES_CHANGED` / `WEB_DIRECTORIES_CHANGED` | Discovery path-pattern sets change | Review what Shopify CLI will discover |
+| `AUTOMATIC_DEV_URLS_CHANGED` | `build.automatically_update_urls_on_dev` changes | Review local tunnel and callback behaviour |
 | `WEBHOOK_API_VERSION_CHANGED` | Webhook API version changes | Review payload compatibility and rollout timing |
 | `WEBHOOK_SUBSCRIPTIONS_CHANGED` | Webhook topics, destinations, filters, or fields change | Review delivery coverage, endpoint routing, and data exposure |
 | `EVENTS_API_VERSION_CHANGED` | `[events].api_version` is added, removed, or changed | Review developer-preview/runtime compatibility |
 | `EVENTS_SUBSCRIPTIONS_CHANGED` | An Events subscription is added, removed, or changed | Review topic, actions, triggers, destination, and query settings |
+| `CONFIG_ADDED` / `CONFIG_REMOVED` / `CONFIG_RENAMED` | A named Shopify app configuration lifecycle changes | Review environment selection and deployment workflows |
 
 The rule semantics are grounded in [Shopify app configuration](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), [access scope management](https://shopify.dev/docs/apps/build/authentication-authorization/manage-access-scopes), and [Events subscriptions](https://shopify.dev/docs/apps/build/events/subscribe). Events is currently a developer preview on Shopify's `unstable` API version; this check identifies semantic configuration changes but does not validate whether Shopify accepts a topic, trigger, query, or URI.
 

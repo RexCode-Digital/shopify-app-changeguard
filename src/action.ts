@@ -14,9 +14,14 @@ async function main(): Promise<void> {
   }
   const outcome = report.unreviewed.length > 0
     ? 'incomplete' : allFindings.length > 0 ? 'findings' : 'clean';
-  process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+  // Do not print untrusted TOML-derived text to stdout: GitHub interprets
+  // workflow command-looking lines in action output. Consumers use outputs.
+  process.stdout.write('ChangeGuard review completed.\n');
   core.setOutput('outcome', outcome);
   core.setOutput('finding_count', String(allFindings.length));
+  core.setOutput('reviewed_file_count', String(report.reviewedFileCount));
+  core.setOutput('unreviewed_count', String(report.unreviewedFileCount));
+  core.setOutput('rule_ids', report.ruleIds.join(','));
   core.setOutput('highest_severity', allFindings.length ? 'review' : 'none');
   core.setOutput('report', JSON.stringify(report));
   await core.summary.addRaw(renderSummary(report)).write();
