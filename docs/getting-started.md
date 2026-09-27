@@ -2,6 +2,18 @@
 
 ## CLI
 
+The `0.2.0` npm package is prepared but is not published until the hardening
+pull request receives human review and is merged. From a clone of the
+repository, run:
+
+```sh
+npm ci --ignore-scripts
+npm run build
+npx changeguard --before path/to/before.toml --after path/to/after.toml
+```
+
+After publication, the equivalent project installation is:
+
 ```sh
 npm install --save-dev shopify-app-changeguard
 npx changeguard --before path/to/before.toml --after path/to/after.toml

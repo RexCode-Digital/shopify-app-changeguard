@@ -29,8 +29,14 @@ The Action contains its production dependencies and compiled code. Consumer jobs
 
 ## CLI
 
+The `0.2.0` package metadata and tarball are prepared, but npm publication is
+deliberately gated on human review and the release workflow. Until the package
+appears on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard),
+run the CLI from a clone or install a reviewed tarball produced by `npm pack`.
+
 ```sh
-npm install --save-dev shopify-app-changeguard
+npm ci --ignore-scripts
+npm run build
 npx changeguard --before examples/before.toml --after examples/after.toml --json
 npx changeguard --base-ref main --head-ref HEAD --file shopify.app.toml --fail-on review
 ```
