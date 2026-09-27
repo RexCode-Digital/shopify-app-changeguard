@@ -2,6 +2,13 @@
 
 All notable changes to ChangeGuard are documented here. The project follows Semantic Versioning while it remains in the 0.x phase.
 
+## [Unreleased]
+
+### Added
+
+- Evidence-backed review findings for Shopify Events API version and subscription changes.
+- A deterministic synthetic Action fixture exercised across Ubuntu, macOS, and Windows in the supported Node matrix.
+
 ## [0.2.1] - 2026-09-27
 
 ### Documentation

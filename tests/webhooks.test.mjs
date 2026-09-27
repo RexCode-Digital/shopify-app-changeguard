@@ -69,9 +69,9 @@ test('rejects malformed webhook shapes instead of claiming success', () => {
   assert.throws(() => compareConfigs(cfg(), cfg({ subscriptions: [subscription(['orders/create'], '/webhooks', { include_fields: 1 })] })), /include_fields/);
 });
 
-test('ignores unrelated event subscriptions and unknown root fields', () => {
-  const before = { ...cfg(), events: { api_version: 'unstable' }, client_secret: 'SECRET_OLD' };
-  const after = { ...cfg(), events: { api_version: '2026-07' }, client_secret: 'SECRET_NEW' };
+test('ignores unknown root fields', () => {
+  const before = { ...cfg(), client_secret: 'SECRET_OLD' };
+  const after = { ...cfg(), client_secret: 'SECRET_NEW' };
   assert.deepEqual(compareConfigs(before, after), []);
 });
 

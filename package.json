@@ -58,7 +58,8 @@
     "dist/pr-review.js",
     "dist/summary.js",
     "dist/urls.js",
-    "dist/webhooks.js"
+    "dist/webhooks.js",
+    "dist/events.js"
   ],
   "author": "Efe Gökdemir"
 }
