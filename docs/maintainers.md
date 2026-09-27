@@ -8,10 +8,11 @@
 
    ```sh
    npm version 0.2.0-beta.0 --no-git-tag-version
-   npm publish --access public --tag bootstrap
+   npm test
+   npm publish --access public --tag bootstrap --provenance=false
    ```
 
-   This one-off publication may require interactive npm authentication and 2FA. It must use the `bootstrap` dist-tag, never `latest`, and the version in the repository must remain `0.2.0`.
+   This one-off publication may require interactive npm authentication and 2FA. It must use the `bootstrap` dist-tag, never `latest`, and the version in the repository must remain `0.2.0`. The explicit `--provenance=false` applies only to this local bootstrap; the real release uses GitHub OIDC provenance.
 
    Confirm that `shopify-app-changeguard` exists on npm and that `latest` was not changed. Then configure the package's Trusted Publisher with GitHub Actions: user/organization `efegokdemir`, repository `shopify-app-changeguard`, workflow filename `release.yml`, blank environment, and direct `npm publish` allowed. Verify that `package.json.repository.url` exactly matches the GitHub repository before creating the `v0.2.0` tag. The release workflow then publishes `0.2.0` through OIDC with provenance and creates the GitHub Release.
 6. For the Action, regenerate `dist/action`, verify the source/distribution check, and update a major tag only after a real stable 1.x release.
