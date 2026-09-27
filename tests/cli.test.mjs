@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
+const packageJson = JSON.parse(readFileSync(new URL('../package.json', import.meta.url)));
 const before = fileURLToPath(new URL('../examples/before.toml', import.meta.url));
 const after = fileURLToPath(new URL('../examples/after.toml', import.meta.url));
 
@@ -44,7 +45,7 @@ test('CLI exposes help and version', () => {
   assert.match(help.stdout, /--fail-on LEVEL/);
   const version = run(['--version']);
   assert.equal(version.status, 0);
-  assert.match(version.stdout, /^0\.2\.0\n$/);
+  assert.equal(version.stdout.trim(), packageJson.version);
 });
 
 test('CLI can fail on informational findings', () => {

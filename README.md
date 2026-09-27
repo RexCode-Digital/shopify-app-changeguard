@@ -29,7 +29,7 @@ The Action contains its production dependencies and compiled code. Consumer jobs
 
 ## CLI
 
-The `0.2.0` package is published on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard)
+The `0.2.1` package is published on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard)
 with GitHub Actions provenance.
 
 ```sh
