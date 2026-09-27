@@ -1,6 +1,7 @@
 import { compareClientIds } from './client-id.js';
 import { compareUrls } from './urls.js';
 import { compareWebhooks } from './webhooks.js';
+import { compareEvents } from './events.js';
 
 export type Severity = 'review';
 export type Finding = {
@@ -138,6 +139,7 @@ export function compareConfigs(before: Config, after: Config): Finding[] {
   changes.push(...compareClientIds(before, after));
   changes.push(...compareUrls(before, after));
   changes.push(...compareWebhooks(before, after));
+  changes.push(...compareEvents(before, after));
   return changes.sort((a, b) =>
     a.field.localeCompare(b.field) || a.ruleId.localeCompare(b.ruleId) || a.summary.localeCompare(b.summary),
   );

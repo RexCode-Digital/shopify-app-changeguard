@@ -12,6 +12,6 @@ No. It means only that no supported semantic change was found in the compared in
 
 No. The CLI and Action are offline and read-only.
 
-### Why are Events configuration changes not reported?
+### How are Events configuration changes reported?
 
-The current rule set is intentionally narrow. Events semantics will be added only with current official documentation, precise comparison rules, and redaction tests.
+ChangeGuard reports changes to the documented `[events].api_version` and `[[events.subscription]]` structure. It redacts handles, destinations, topics, triggers, queries, and filters from findings. Shopify Events remains a developer preview on the `unstable` API version, so a finding requests review; it does not validate Shopify deployment acceptance.

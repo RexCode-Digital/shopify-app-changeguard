@@ -50,8 +50,9 @@ npx changeguard --base-ref main --head-ref HEAD --file shopify.app.toml --fail-o
 | OAuth | `auth.redirect_urls` set changes, without printing URLs |
 | Installation flow | `access_scopes.use_legacy_install_flow` changes |
 | Webhooks | API version and subscription route/delivery changes, without printing destinations, topics, filters, or field names |
+| Events | Developer-preview API version and subscription changes, without printing handles, destinations, topics, triggers, queries, or filters |
 
-The supported semantics are based on the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration). Unsupported fields are ignored by direct comparison; unsupported or malformed changed files fail closed in the Action.
+The supported semantics are based on the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), including webhook and developer-preview Events subscription changes. Unsupported fields are ignored by direct comparison; unsupported or malformed changed files fail closed in the Action.
 
 ## Demo and limitations
 

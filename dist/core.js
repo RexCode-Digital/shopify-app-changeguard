@@ -1,6 +1,7 @@
 import { compareClientIds } from './client-id.js';
 import { compareUrls } from './urls.js';
 import { compareWebhooks } from './webhooks.js';
+import { compareEvents } from './events.js';
 function isObject(value) {
     return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -117,5 +118,6 @@ export function compareConfigs(before, after) {
     changes.push(...compareClientIds(before, after));
     changes.push(...compareUrls(before, after));
     changes.push(...compareWebhooks(before, after));
+    changes.push(...compareEvents(before, after));
     return changes.sort((a, b) => a.field.localeCompare(b.field) || a.ruleId.localeCompare(b.ruleId) || a.summary.localeCompare(b.summary));
 }
