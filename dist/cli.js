@@ -3,7 +3,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { parse } from '@iarna/toml';
 import { compareConfigs } from './core.js';
 import { readConfigAtRef } from './git-refs.js';
-const VERSION = '0.2.1';
+const VERSION = '0.3.0';
 function usage(exitCode = 2) {
     const output = `ChangeGuard ${VERSION}
 

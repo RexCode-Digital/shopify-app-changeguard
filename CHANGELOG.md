@@ -2,12 +2,22 @@
 
 All notable changes to ChangeGuard are documented here. The project follows Semantic Versioning while it remains in the 0.x phase.
 
-## [Unreleased]
+## [0.3.0] - 2026-09-27
 
 ### Added
 
 - Evidence-backed review findings for Shopify Events API version and subscription changes.
 - A deterministic synthetic Action fixture exercised across Ubuntu, macOS, and Windows in the supported Node matrix.
+
+### Security and privacy
+
+- Events handles, destinations, topics, triggers, queries, and filters remain redacted from findings.
+- No telemetry, Shopify access, or new network behavior was added.
+
+### Compatibility
+
+- Existing CLI flags, exit codes, Action inputs/outputs, report schema, and rule IDs remain backward compatible.
+- Node.js `>=20` remains supported.
 
 ## [0.2.1] - 2026-09-27
 
