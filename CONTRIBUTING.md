@@ -11,6 +11,7 @@ Development:
 
     npm ci --ignore-scripts
     npm test
+    npm run coverage
     npm run lint
     npm audit
     npm run package:check
@@ -28,6 +29,9 @@ after a second build.
 Unsupported or malformed configuration must not be reported as clean. Do
 not add telemetry, Shopify network calls, credentials, or shell-interpolated
 Git commands.
+
+Coverage gates at 80% statements, lines, and functions, and 70% branches.
+This protects comparison and redaction paths without requiring 100% coverage.
 
 In pull requests, explain the problem, your solution and test results.
 
