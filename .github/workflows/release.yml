@@ -34,7 +34,7 @@ jobs:
       - run: npm pack --dry-run
       - run: npm run package:smoke
       - run: npm run action:check
-      - run: git diff --exit-code -- dist/action
+      - run: git diff --exit-code -- package.json package-lock.json dist/action
       - name: Publish npm package with provenance
         run: npm publish --provenance --access public
       - name: Create GitHub release
