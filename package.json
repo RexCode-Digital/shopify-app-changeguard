@@ -1,29 +1,57 @@
 {
   "name": "shopify-app-changeguard",
-  "version": "0.1.2",
-  "private": true,
-  "description": "Experimental, offline semantic change review for Shopify app configuration files (unofficial)",
+  "version": "0.2.0",
+  "description": "Unofficial offline semantic change review for Shopify app configuration files",
   "type": "module",
   "engines": {
     "node": ">=20"
   },
   "bin": {
-    "changeguard": "./dist/cli.js"
+    "changeguard": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && ncc build dist/action.js -o dist/action --minify",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "check": "node dist/cli.js"
+    "check": "node dist/cli.js",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "coverage": "npm run build && c8 --exclude 'dist/action/**' --reporter=text --reporter=json-summary --check-coverage --lines 80 --functions 80 --branches 70 --statements 80 node --test tests/*.test.mjs",
+    "format:check": "git diff --check",
+    "package:check": "npm pack --dry-run",
+    "package:smoke": "node scripts/package-smoke.mjs",
+    "action:check": "node scripts/check-action-dist.mjs"
   },
   "dependencies": {
     "@iarna/toml": "2.2.5"
   },
   "devDependencies": {
+    "@actions/core": "3.0.1",
     "@types/node": "24.13.5",
+    "@vercel/ncc": "0.45.0",
+    "c8": "12.0.0",
     "typescript": "7.0.2"
   },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/efegokdemir/shopify-app-changeguard.git"
+  },
+  "homepage": "https://github.com/efegokdemir/shopify-app-changeguard#readme",
+  "bugs": {
+    "url": "https://github.com/efegokdemir/shopify-app-changeguard/issues"
+  },
+  "keywords": [
+    "shopify",
+    "github-action",
+    "configuration",
+    "security",
+    "toml",
+    "ci"
+  ],
+  "publishConfig": {
+    "provenance": true
+  },
   "files": [
     "dist/"
-  ]
+  ],
+  "author": "Efe Gökdemir"
 }

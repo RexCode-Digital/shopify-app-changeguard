@@ -1,0 +1,22 @@
+name: Feature request
+description: Propose a useful, evidence-backed improvement
+title: "feature: "
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour and anonymised example
+    validations:
+      required: true
+  - type: input
+    id: documentation
+    attributes:
+      label: Official Shopify documentation link
+      description: Required when the request depends on Shopify semantics.

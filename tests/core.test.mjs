@@ -11,6 +11,40 @@ test('reports required scope additions', () => {
   assert.match(results[0].summary, /read_products/);
 });
 
+test('reports high-impact app setting changes without exposing values', () => {
+  const before = {
+    ...cfg('read_orders'),
+    embedded: true,
+    handle: 'old-private-handle',
+    access_scopes: { scopes: 'read_orders', use_legacy_install_flow: false },
+  };
+  const after = {
+    ...cfg('read_orders'),
+    embedded: false,
+    handle: 'new-private-handle',
+    access_scopes: { scopes: 'read_orders', use_legacy_install_flow: true },
+  };
+  const findings = compareConfigs(before, after);
+  assert.deepEqual(findings.map(({ ruleId }) => ruleId).sort(), [
+    'APP_HANDLE_CHANGED',
+    'EMBEDDED_MODE_CHANGED',
+    'LEGACY_INSTALL_FLOW_CHANGED',
+  ]);
+  assert.doesNotMatch(JSON.stringify(findings), /old-private-handle|new-private-handle/);
+});
+
+test('ignores unchanged high-impact app settings and validates their types', () => {
+  const config = {
+    ...cfg('read_orders'),
+    embedded: true,
+    handle: 'same-handle',
+    access_scopes: { scopes: 'read_orders', use_legacy_install_flow: false },
+  };
+  assert.deepEqual(compareConfigs(config, config), []);
+  assert.throws(() => compareConfigs(config, { ...config, embedded: 'yes' }), /embedded/);
+  assert.throws(() => compareConfigs(config, { ...config, handle: '' }), /handle/);
+});
+
 test('ignores comma list reorder and duplicates', () => {
   assert.deepEqual(compareConfigs(cfg('read_orders,read_products'), cfg(' read_products, read_orders,read_orders ')), []);
 });

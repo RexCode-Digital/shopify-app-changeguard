@@ -38,6 +38,25 @@ test('CLI rejects missing required arguments', () => {
   assert.notEqual(result.status, 0);
 });
 
+test('CLI exposes help and version', () => {
+  const help = run(['--help']);
+  assert.equal(help.status, 0);
+  assert.match(help.stdout, /--fail-on LEVEL/);
+  const version = run(['--version']);
+  assert.equal(version.status, 0);
+  assert.match(version.stdout, /^0\.2\.0\n$/);
+});
+
+test('CLI can fail on informational findings', () => {
+  const result = run([
+    '--before', before,
+    '--after', after,
+    '--fail-on', 'review',
+  ]);
+  assert.equal(result.status, 1);
+  assert.match(result.stdout, /finding\(s\)/);
+});
+
 test('CLI rejects malformed TOML', () => {
   const directory = mkdtempSync(join(tmpdir(), 'changeguard-invalid-'));
 

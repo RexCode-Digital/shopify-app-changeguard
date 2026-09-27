@@ -1,0 +1,18 @@
+name: Shopify compatibility report
+description: Report a documented Shopify configuration behaviour change
+title: "compatibility: "
+labels: [compatibility, needs-triage]
+body:
+  - type: input
+    id: documentation
+    attributes:
+      label: Official documentation link
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Minimal anonymised configuration and observed behaviour
+      description: Do not include secrets, private URLs, credentials, or customer data.
+    validations:
+      required: true

@@ -39,6 +39,55 @@ function readScopes(config: Config): Scopes {
   return { required, optional: optionalSet };
 }
 
+function readOptionalBoolean(config: Config, field: string): boolean | undefined {
+  const value = config[field];
+  if (value !== undefined && typeof value !== 'boolean') throw new Error(`${field} must be a boolean`);
+  return value as boolean | undefined;
+}
+
+function readOptionalString(config: Config, field: string): string | undefined {
+  const value = config[field];
+  if (value !== undefined && (typeof value !== 'string' || !value.trim())) {
+    throw new Error(`${field} must be a non-empty string`);
+  }
+  return value as string | undefined;
+}
+
+function compareRootSettings(before: Config, after: Config): Finding[] {
+  const findings: Finding[] = [];
+  const settings: Array<[string, string, 'boolean' | 'string']> = [
+    ['embedded', 'EMBEDDED_MODE_CHANGED', 'boolean'],
+    ['handle', 'APP_HANDLE_CHANGED', 'string'],
+  ];
+  for (const [field, ruleId, type] of settings) {
+    const oldValue = type === 'boolean'
+      ? readOptionalBoolean(before, field) : readOptionalString(before, field);
+    const newValue = type === 'boolean'
+      ? readOptionalBoolean(after, field) : readOptionalString(after, field);
+    if (oldValue !== newValue) {
+      findings.push({
+        ruleId,
+        severity: 'review',
+        field,
+        summary: `${field} changed; review the intended app behaviour and deployment impact`,
+      });
+    }
+  }
+  const oldScopes = isObject(before.access_scopes) ? before.access_scopes : {};
+  const newScopes = isObject(after.access_scopes) ? after.access_scopes : {};
+  const oldLegacy = readOptionalBoolean(oldScopes, 'use_legacy_install_flow');
+  const newLegacy = readOptionalBoolean(newScopes, 'use_legacy_install_flow');
+  if (oldLegacy !== newLegacy) {
+    findings.push({
+      ruleId: 'LEGACY_INSTALL_FLOW_CHANGED',
+      severity: 'review',
+      field: 'access_scopes.use_legacy_install_flow',
+      summary: 'legacy installation flow setting changed; review OAuth and scope-management behaviour',
+    });
+  }
+  return findings;
+}
+
 export function compareConfigs(before: Config, after: Config): Finding[] {
   const oldScopes = readScopes(before);
   const newScopes = readScopes(after);
@@ -85,6 +134,7 @@ export function compareConfigs(before: Config, after: Config): Finding[] {
   };
   compare(oldScopes.required, newScopes.required, 'required');
   compare(oldScopes.optional, newScopes.optional, 'optional');
+  changes.push(...compareRootSettings(before, after));
   changes.push(...compareClientIds(before, after));
   changes.push(...compareUrls(before, after));
   changes.push(...compareWebhooks(before, after));

@@ -1,5 +1,9 @@
-name: ChangeGuard
-description: Read-only review of Shopify app TOML changes in a pull request
+name: ChangeGuard — Shopify App Config Review
+description: Unofficial, read-only review of Shopify app TOML changes in a pull request
+author: Efe Gökdemir
+branding:
+  icon: shield
+  color: blue
 
 inputs:
   base_sha:
@@ -8,38 +12,21 @@ inputs:
   head_sha:
     description: Pull request head commit SHA
     required: true
+  fail_on:
+    description: 'Failure policy: never, review, or unreviewed'
+    required: false
+    default: unreviewed
+
+outputs:
+  outcome:
+    description: clean, findings, or incomplete
+  finding_count:
+    description: Number of semantic review findings
+  highest_severity:
+    description: Highest finding severity, or none
+  report:
+    description: JSON review report
 
 runs:
-  using: composite
-  steps:
-    - name: Set up Node.js
-      uses: actions/setup-node@v5
-      with:
-        node-version: '24'
-        package-manager-cache: false
-
-    - name: Install ChangeGuard dependencies
-      shell: bash
-      env:
-        CG_ACTION_DIR: ${{ github.action_path }}
-      run: |
-        set -euo pipefail
-        npm --prefix "$CG_ACTION_DIR" ci --ignore-scripts --no-audit --no-fund
-
-    - name: Build ChangeGuard
-      shell: bash
-      env:
-        CG_ACTION_DIR: ${{ github.action_path }}
-      run: |
-        set -euo pipefail
-        npm --prefix "$CG_ACTION_DIR" run build
-
-    - name: Review Shopify configuration changes
-      shell: bash
-      env:
-        CG_ACTION_DIR: ${{ github.action_path }}
-        CHANGEGUARD_BASE_SHA: ${{ inputs.base_sha }}
-        CHANGEGUARD_HEAD_SHA: ${{ inputs.head_sha }}
-      run: |
-        set -euo pipefail
-        node "$CG_ACTION_DIR/scripts/check-pr.mjs"
+  using: node24
+  main: dist/action/index.js
