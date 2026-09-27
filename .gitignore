@@ -4,6 +4,8 @@ dist/*
 !dist/
 !dist/action/
 !dist/action/**
+!dist/*.js
+dist/action.js
 .DS_Store
 .env
 .env.*
