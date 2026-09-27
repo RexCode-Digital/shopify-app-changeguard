@@ -2,6 +2,13 @@
 
 All notable changes to ChangeGuard are documented here. The project follows Semantic Versioning while it remains in the 0.x phase.
 
+## [0.4.1] - 2026-09-27
+
+### Documentation and packaging
+
+- Refreshed public installation guidance and immutable Action references after the v0.4.0 release.
+- Published the corrected package metadata and README with GitHub Actions provenance.
+
 ## [0.4.0] - 2026-09-27
 
 ### Added
