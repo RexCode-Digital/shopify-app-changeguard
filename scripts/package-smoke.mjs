@@ -18,8 +18,8 @@ try {
   mkdirSync(installDir);
   run('npm', ['pack', '--pack-destination', packDir]);
   const tarball = join(packDir, readdirSync(packDir).find((file) => file.endsWith('.tgz')));
-  run('npm', ['init', '-y', '--prefix', installDir]);
-  run('npm', ['install', '--ignore-scripts', '--prefix', installDir, tarball]);
+  run('npm', ['init', '-y'], { cwd: installDir });
+  run('npm', ['install', '--ignore-scripts', tarball], { cwd: installDir });
   const cli = join(installDir, 'node_modules', '.bin', 'changeguard');
   run(cli, ['--help']);
   const version = run(cli, ['--version']).trim();
