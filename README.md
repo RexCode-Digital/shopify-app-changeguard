@@ -19,17 +19,18 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: efegokdemir/shopify-app-changeguard@b78f4f88c1e52841d8032b19ec6fd7beb653063d # v0.2.1
+      - uses: efegokdemir/shopify-app-changeguard@8d8f07ee63de32203fc96284ab640fcd19be34bd # v0.3.0
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
+          fail_on: review
 ```
 
 The Action contains its production dependencies and compiled code. Consumer jobs do not install npm dependencies or compile ChangeGuard. Pin a reviewed full commit SHA; do not use `main` for a security-sensitive workflow. See [the Action guide](docs/github-action.md) and the [copy-paste workflow example](examples/changeguard-workflow.yml).
 
 ## CLI
 
-The `0.2.1` package is published on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard)
+The `0.3.0` package is published on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard)
 with GitHub Actions provenance.
 
 ```sh
