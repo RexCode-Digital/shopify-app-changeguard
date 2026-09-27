@@ -19,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: efegokdemir/shopify-app-changeguard@8d8f07ee63de32203fc96284ab640fcd19be34bd # v0.3.0
+      - uses: efegokdemir/shopify-app-changeguard@ddc3f548ef825c3f700de55299c54d48a6375914 # v0.4.0
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -30,7 +30,7 @@ The Action contains its production dependencies and compiled code. Consumer jobs
 
 ## CLI
 
-The `0.3.0` package is published on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard)
+The `0.4.0` package is published on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard)
 with GitHub Actions provenance.
 
 ```sh

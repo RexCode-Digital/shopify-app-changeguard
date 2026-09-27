@@ -2,7 +2,7 @@
 
 ## CLI
 
-The `0.3.0` npm package is published with GitHub Actions provenance. Install it
+The `0.4.0` npm package is published with GitHub Actions provenance. Install it
 as a development dependency:
 
 ```sh
