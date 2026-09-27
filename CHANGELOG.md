@@ -2,6 +2,26 @@
 
 All notable changes to ChangeGuard are documented here. The project follows Semantic Versioning while it remains in the 0.x phase.
 
+## [0.4.0] - 2026-09-27
+
+### Added
+
+- Semantic review for app identity, Admin Direct API access, Customer Account authentication, app proxies, POS, app preferences, project discovery directories, and development URL policy.
+- First-class added, removed, and renamed named `shopify.app*.toml` lifecycle findings.
+- Repository-wide Git review through the CLI's `--all-configs` mode.
+- Typed rule metadata, support matrix, documentation links, and additional Action outputs.
+- Build-time CLI version synchronization from `package.json`.
+
+### Security and privacy
+
+- Action workflow-command-looking TOML-derived text is no longer printed to raw stdout.
+- New URL and routing rules report counts and semantic descriptions without exposing destinations or origins.
+
+### Compatibility
+
+- Existing comparison flags, report schema version, exit codes, and rule IDs remain compatible.
+- Node.js `>=20` remains supported.
+
 ## [0.3.0] - 2026-09-27
 
 ### Added
