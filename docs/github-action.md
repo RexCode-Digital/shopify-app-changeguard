@@ -20,10 +20,11 @@ with the following contents:
               fetch-depth: 0
               persist-credentials: false
 
-          - uses: efegokdemir/shopify-app-changeguard@b78f4f88c1e52841d8032b19ec6fd7beb653063d # v0.2.1
+          - uses: efegokdemir/shopify-app-changeguard@8d8f07ee63de32203fc96284ab640fcd19be34bd # v0.3.0
             with:
               base_sha: ${{ github.event.pull_request.base.sha }}
               head_sha: ${{ github.event.pull_request.head.sha }}
+              fail_on: review
 
 The full commit SHA pins the reviewed Action version. The Action is a committed Node.js 24 bundle; the consuming repository does not install npm dependencies or compile ChangeGuard.
 
