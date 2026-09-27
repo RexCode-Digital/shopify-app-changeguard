@@ -1,8 +1,8 @@
 # ChangeGuard
 
-Unofficial open-source tooling for reviewing semantic changes to Shopify app configuration TOML before deployment. ChangeGuard is not affiliated with, endorsed by, or certified by Shopify.
+ChangeGuard reviews `shopify.app*.toml` configuration changes in pull requests before deployment. It is an offline, read-only semantic reviewer: it highlights meaningful changes for human review and redacts sensitive configuration values from findings and summaries.
 
-It is read-only, offline, and deliberately narrow: it highlights changes for human review; it does not access Shopify, deploy an app, validate credentials, or approve security.
+No Shopify credentials, network access, or Shopify API calls are required. ChangeGuard is not affiliated with, endorsed by, or certified by Shopify.
 
 ## GitHub Action
 
@@ -60,6 +60,16 @@ npx changeguard --base-ref main --head-ref HEAD --all-configs --json
 | Config lifecycle | Added, removed, or renamed named `shopify.app*.toml` files |
 
 The supported semantics are based on the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), including webhook and developer-preview Events subscription changes. See the [support matrix](docs/support-matrix.md) for supported, ignored, delegated, and non-planned areas. Unsupported fields are ignored by direct comparison; unsupported or malformed changed files fail closed in the Action.
+
+## Non-goals
+
+- No Shopify API calls, credentials, or network services.
+- No deployment or deployment approval.
+- No replacement for Shopify schema validation.
+- No security certification or vulnerability scanning.
+- No telemetry.
+
+ChangeGuard is deliberately narrow and highlights changes for human review. It does not validate credentials or approve security.
 
 ## Demo and limitations
 
