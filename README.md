@@ -19,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: efegokdemir/shopify-app-changeguard@ddc3f548ef825c3f700de55299c54d48a6375914 # v0.4.0
+      - uses: efegokdemir/shopify-app-changeguard@471bc3f83970e9034b79b44184c2d93eee9f385b # v0.4.1
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
