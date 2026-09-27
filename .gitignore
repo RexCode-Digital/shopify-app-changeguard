@@ -1,5 +1,8 @@
 node_modules/
-dist/
+dist/*
+!dist/
+!dist/action/
+!dist/action/**
 .DS_Store
 .env
 .env.*

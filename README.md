@@ -1,95 +1,63 @@
-# ChangeGuard (experimental)
+# ChangeGuard
 
-Unofficial open-source prototype for reviewing changes in Shopify app TOML files.
-Not affiliated with, endorsed by, or certified by Shopify.
+Unofficial open-source tooling for reviewing semantic changes to Shopify app configuration TOML before deployment. ChangeGuard is not affiliated with, endorsed by, or certified by Shopify.
 
-## Status
+It is read-only, offline, and deliberately narrow: it highlights changes for human review; it does not access Shopify, deploy an app, validate credentials, or approve security.
 
-**Experimental prototype with a tested GitHub Action.** It reviews required/optional access scopes,
-client_id, application_url, [auth].redirect_urls, webhook API version and app-specific
-webhook subscription changes across two local TOML files. Client ID values, URLs, delivery destinations, topics and filter expressions
-are not printed in findings.
-Unrelated sections and deployed state are **not checked**.
-An empty report is not a security or deployment approval. Does not access Shopify
-or deploy anything.
+## GitHub Action
 
-## Develop
-
-Requires Node.js 20+ and npm.
-
-```sh
-npm install
-npm test
-npm run check -- --before examples/before.toml --after examples/after.toml
-npm run check -- --before examples/before.toml --after examples/after.toml --json
+```yaml
+name: Shopify app configuration review
+on: pull_request
+permissions:
+  contents: read
+jobs:
+  changeguard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: efegokdemir/shopify-app-changeguard@<reviewed-full-commit-sha>
+        with:
+          base_sha: ${{ github.event.pull_request.base.sha }}
+          head_sha: ${{ github.event.pull_request.head.sha }}
 ```
 
-Exit codes: 0 = analysis completed (including review findings), 2 = invalid input/tool error.
-Review findings are informational; unreviewable changes fail the check.
-The GitHub repository is public. No npm release has been published; the package remains private to prevent accidental publication.
+The Action contains its production dependencies and compiled code. Consumer jobs do not install npm dependencies or compile ChangeGuard. Pin a reviewed full commit SHA; do not use `main` for a security-sensitive workflow. See [the Action guide](docs/github-action.md).
 
-## Security
+## CLI
 
-Use anonymized configuration examples. Never commit real secrets, credentials or private
-application configurations. CLI is read-only and offline. TOML parse errors are redacted
-because parser diagnostics might otherwise contain original source lines.
+```sh
+npm install --save-dev shopify-app-changeguard
+npx changeguard --before examples/before.toml --after examples/after.toml --json
+npx changeguard --base-ref main --head-ref HEAD --file shopify.app.toml --fail-on review
+```
 
-## Compare Git revisions
+`--fail-on never` is the default. `review` exits 1 when findings exist. Invalid or unreviewable input exits 2. See [CLI reference](docs/cli.md).
 
-Compare two committed versions of the same TOML file:
+## Supported checks
 
-    npm run check -- --base-ref main --head-ref HEAD --file shopify.app.toml --json
+| Area | Review behaviour |
+| --- | --- |
+| Required and optional access scopes | Additions, removals, and required/optional transitions |
+| `client_id` | Added, removed, or changed, without printing the ID |
+| App settings | `application_url`, `embedded`, and `handle` changes |
+| OAuth | `auth.redirect_urls` set changes, without printing URLs |
+| Installation flow | `access_scopes.use_legacy_install_flow` changes |
+| Webhooks | API version and subscription route/delivery changes, without printing destinations, topics, filters, or field names |
 
-Run inside a Git repository. Both revisions must be commits, and the file must exist in both. Uncommitted changes are ignored. This operation is read-only and does not contact Shopify.
+The supported semantics are based on the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration). Unsupported fields are ignored by direct comparison; unsupported or malformed changed files fail closed in the Action.
 
-## Next milestones
+## Demo and limitations
 
-Additional webhook regression fixtures; expanded PR review coverage;
-external developer validation.
+The checked-in [before](examples/before.toml) and [after](examples/after.toml) fixtures are synthetic. Generate output from the executable with `npm ci --ignore-scripts && npm test && npm run check -- --before examples/before.toml --after examples/after.toml`.
 
-## Contributing
+ChangeGuard does not send configuration to a service, access Shopify, or replace application/OAuth/security review. It is not a complete security scanner, schema validator, or deployment verifier. Do not pass real secrets or private configuration to logs.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+This is an early 0.x project. The public repository currently has no claimed external adopters, endorsements, or usage statistics. See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](CONTRIBUTING.md), and [SECURITY.md](SECURITY.md).
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-## GitHub PR checks
-
-The repository includes an experimental, read-only pull request workflow.
-It compares supported Shopify app TOML files between the PR base and head
-commits and prints a JSON report in the workflow logs.
-
-Added, deleted or unparseable configuration files cause the review check
-to fail instead of silently reporting success. Ordinary review findings
-do not currently fail the check.
-
-The workflow also writes a GitHub Actions job summary with review counts
-and findings grouped by rule ID. The JSON report remains in the workflow
-logs. File paths and finding descriptions are not copied into the summary.
-
-The workflow does not post PR comments, access Shopify or approve deployment.
-It is not an independent security boundary against malicious PR code.
-
-## Reusable GitHub Action
-
-See the [installation guide](docs/github-action.md) for a complete workflow example.
-
-Other repositories can use this action in a pull request workflow.
-Check out the repository with `fetch-depth: 0` and
-`persist-credentials: false` first.
-
-Use `efegokdemir/shopify-app-changeguard@FULL_REVIEWED_COMMIT_SHA`
-and provide these inputs:
-
-- `base_sha`: `${{ github.event.pull_request.base.sha }}`
-- `head_sha`: `${{ github.event.pull_request.head.sha }}`
-
-Replace the placeholder with a real, reviewed commit SHA.
-GitHub releases are experimental prereleases. Pin a reviewed full commit SHA for reproducibility.
-
-The action installs its own dependencies and reviews committed Shopify
-app TOML changes offline. Findings are informational, while missing or
-unreviewable configurations fail the check. It does not access Shopify
-or approve deployment.
