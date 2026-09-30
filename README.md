@@ -1,16 +1,75 @@
 # ChangeGuard
 
-ChangeGuard reviews `shopify.app*.toml` configuration changes in pull requests before deployment. It is an offline, read-only semantic reviewer: it highlights meaningful changes for human review and redacts sensitive configuration values from findings and summaries.
+**Review meaningful Shopify app configuration changes before they reach production.**
 
-No Shopify credentials, network access, or Shopify API calls are required. ChangeGuard is not affiliated with, endorsed by, or certified by Shopify.
+[![npm](https://img.shields.io/npm/v/shopify-app-changeguard?logo=npm)](https://www.npmjs.com/package/shopify-app-changeguard)
+[![npm downloads](https://img.shields.io/npm/dm/shopify-app-changeguard?logo=npm)](https://www.npmjs.com/package/shopify-app-changeguard)
+[![CI](https://github.com/efegokdemir/shopify-app-changeguard/actions/workflows/ci.yml/badge.svg)](https://github.com/efegokdemir/shopify-app-changeguard/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/efegokdemir/shopify-app-changeguard/actions/workflows/codeql.yml/badge.svg)](https://github.com/efegokdemir/shopify-app-changeguard/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/efegokdemir/shopify-app-changeguard/badge)](https://securityscorecards.dev/viewer/?uri=github.com/efegokdemir/shopify-app-changeguard)
+[![license](https://img.shields.io/github/license/efegokdemir/shopify-app-changeguard)](LICENSE)
+
+ChangeGuard is an offline, read-only semantic reviewer for `shopify.app*.toml` changes. It helps reviewers see configuration changes that deserve attention, assigns deterministic risk levels, and redacts sensitive configuration values from findings and summaries.
+
+**No Shopify credentials. No telemetry. No source upload. No Shopify API calls.**
+
+> Unofficial open-source developer tooling. Not affiliated with, endorsed by, or certified by Shopify.
+
+## Quick start
+
+Compare two Shopify app configuration files without installing globally:
+
+```bash
+npx shopify-app-changeguard --before shopify.app.before.toml --after shopify.app.toml
+```
+
+JSON output:
+
+```bash
+npx shopify-app-changeguard --before shopify.app.before.toml --after shopify.app.toml --json
+```
+
+Review a Git diff:
+
+```bash
+npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs
+```
+
+Or install it in a project:
+
+```bash
+npm install --save-dev shopify-app-changeguard
+npx changeguard --base-ref main --head-ref HEAD --all-configs
+```
+
+## Why ChangeGuard?
+
+Shopify app configuration files can change behaviour without looking like application-code changes. A small TOML diff can alter access scopes, OAuth redirects, webhook delivery, app identity, proxy behaviour, POS settings, or development configuration.
+
+ChangeGuard turns those diffs into a focused review report.
+
+- **Semantic review** — highlights meaningful configuration changes instead of raw line noise.
+- **Deterministic risk levels** — each finding is labelled `low`, `medium`, or `high` with a rationale.
+- **Privacy-first** — sensitive values are redacted from findings and summaries.
+- **PR-ready** — runs as a bundled GitHub Action with no dependency install in consumer jobs.
+- **Offline by design** — ordinary review needs no Shopify credentials, network service, or API access.
+- **Stable automation** — machine-readable JSON, stable rule IDs, and Action outputs for CI policy.
+
+Risk levels are review guidance, not Shopify validation, security certification, or deployment approval.
 
 ## GitHub Action
 
+A minimal pull-request workflow:
+
 ```yaml
 name: Shopify app configuration review
-on: pull_request
+
+on:
+  pull_request:
+
 permissions:
   contents: read
+
 jobs:
   changeguard:
     runs-on: ubuntu-latest
@@ -19,6 +78,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+
       - uses: efegokdemir/shopify-app-changeguard@1fee675575e3dfbbe2c8d702323aa7c4240efcb1 # v0.5.0
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
@@ -26,25 +86,25 @@ jobs:
           fail_on: review
 ```
 
-The Action contains its production dependencies and compiled code. Consumer jobs do not install npm dependencies or compile ChangeGuard. Pin a reviewed full commit SHA; do not use `main` for a security-sensitive workflow. See [the Action guide](docs/github-action.md) and the [copy-paste workflow example](examples/changeguard-workflow.yml).
+For security-sensitive workflows, pin third-party Actions to a reviewed immutable commit SHA rather than `main`.
 
-## CLI
+See the [Action guide](docs/github-action.md) and [copy-paste workflow example](examples/changeguard-workflow.yml).
 
-The package is published on the [npm registry](https://www.npmjs.com/package/shopify-app-changeguard)
-with GitHub Actions provenance.
+### Action inputs
 
-```sh
-npm install --save-dev shopify-app-changeguard
-npx changeguard --before examples/before.toml --after examples/after.toml --json
-npx changeguard --base-ref main --head-ref HEAD --file shopify.app.toml --fail-on review
-npx changeguard --base-ref main --head-ref HEAD --all-configs --json
-```
+| Input | Purpose |
+| --- | --- |
+| `base_sha` | Pull request base commit SHA |
+| `head_sha` | Pull request head commit SHA |
+| `fail_on` | Failure policy: `never`, `review`, or `unreviewed` |
 
-`--fail-on never` is the default. `review` exits 1 when findings exist. Invalid or unreviewable input exits 2. See [CLI reference](docs/cli.md).
+### Action outputs
 
-## Supported checks
+`outcome`, `finding_count`, `highest_severity`, `highest_risk`, `report`, `reviewed_file_count`, `unreviewed_count`, and `rule_ids`.
 
-Each finding also includes a deterministic risk level (`low`, `medium`, or `high`) and a short rationale so reviewers can prioritize attention. Risk levels are review guidance, not Shopify validation or deployment approval; sensitive values remain redacted.
+The bundled Action runs on GitHub's `node24` JavaScript Action runtime. Consumer jobs do not install project dependencies or compile ChangeGuard.
+
+## What it reviews
 
 | Area | Review behaviour |
 | --- | --- |
@@ -61,26 +121,100 @@ Each finding also includes a deterministic risk level (`low`, `medium`, or `high
 | Events | Developer-preview API version and subscription changes, without printing handles, destinations, topics, triggers, queries, or filters |
 | Config lifecycle | Added, removed, or renamed named `shopify.app*.toml` files |
 
-The supported semantics are based on the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), including webhook and developer-preview Events subscription changes. See the [support matrix](docs/support-matrix.md) for supported, ignored, delegated, and non-planned areas. Unsupported fields are ignored by direct comparison; unsupported or malformed changed files fail closed in the Action.
+Supported semantics follow the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration).
+
+See the [support matrix](docs/support-matrix.md) for supported, ignored, delegated, and intentionally non-planned areas.
+
+## Risk model
+
+Every finding includes a deterministic risk level and a concise rationale.
+
+- **low** — review-worthy change with limited expected operational impact
+- **medium** — change that can affect integration or application behaviour and deserves focused review
+- **high** — change with broader permission, authentication, delivery, or operational consequences
+
+The risk model is deliberately deterministic so CI and human reviewers see the same classification for the same semantic change.
+
+It is not a claim that a configuration is secure, valid, or approved by Shopify.
+
+## CLI
+
+```text
+changeguard --before FILE --after FILE [--json]
+changeguard --base-ref REF --head-ref REF --file shopify.app.toml [--fail-on ...]
+changeguard --base-ref REF --head-ref REF --all-configs [--json]
+```
+
+Examples:
+
+```bash
+# Compare synthetic fixtures from this repository
+npx shopify-app-changeguard --before examples/before.toml --after examples/after.toml
+
+# Machine-readable output
+npx shopify-app-changeguard --before examples/before.toml --after examples/after.toml --json
+
+# Review every named Shopify app configuration changed against main
+npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --json
+
+# Fail CI when review findings exist
+npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --fail-on review
+```
+
+`--fail-on never` is the default. `review` exits 1 when findings exist. Invalid or unreviewable input exits 2.
+
+See the [CLI reference](docs/cli.md).
+
+## Security and privacy
+
+ChangeGuard treats repository content as untrusted input and is intentionally narrow.
+
+It:
+
+- does not execute scanned Shopify configuration
+- does not call Shopify APIs
+- does not require Shopify credentials
+- does not upload configuration to a service
+- redacts sensitive configuration values from findings and summaries
+- uses bounded, reviewable comparison behaviour
+- ships a bundled Action so consumer workflows do not run an install step for ChangeGuard
+
+See [SECURITY.md](SECURITY.md), [SUPPORT.md](SUPPORT.md), and the project documentation in [docs/](docs/).
 
 ## Non-goals
 
-- No Shopify API calls, credentials, or network services.
-- No deployment or deployment approval.
-- No replacement for Shopify schema validation.
-- No security certification or vulnerability scanning.
-- No telemetry.
+ChangeGuard does **not**:
 
-ChangeGuard is deliberately narrow and highlights changes for human review. It does not validate credentials or approve security.
+- deploy or approve deployments
+- replace Shopify schema validation
+- certify application security
+- validate credentials
+- act as a complete vulnerability scanner
+- collect telemetry
 
-## Demo and limitations
+It highlights changes that deserve human review.
 
-The checked-in [before](examples/before.toml) and [after](examples/after.toml) fixtures are synthetic. Generate output from the executable with `npm ci --ignore-scripts && npm test && npm run check -- --before examples/before.toml --after examples/after.toml`.
+## Contributing
 
-ChangeGuard does not send configuration to a service, access Shopify, or replace application/OAuth/security review. It is not a complete security scanner, schema validator, or deployment verifier. Do not pass real secrets or private configuration to logs.
+Contributions are welcome, especially around new evidence-backed configuration semantics, redaction hardening, privacy-safe fixtures, and deterministic review quality.
 
-This is an early 0.x project. The public repository currently has no claimed external adopters, endorsements, or usage statistics. See [CHANGELOG.md](CHANGELOG.md), [ROADMAP.md](ROADMAP.md), [CONTRIBUTING.md](CONTRIBUTING.md), and [SECURITY.md](SECURITY.md).
+A rule or semantic change should include:
+
+1. the Shopify configuration behaviour being reviewed
+2. current official Shopify documentation where relevant
+3. a positive fixture
+4. an unchanged/negative case
+5. ordering/set-behaviour coverage where relevant
+6. redaction coverage for any sensitive values
+
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) or browse the [open issues](https://github.com/efegokdemir/shopify-app-changeguard/issues).
+
+## Roadmap
+
+Current priorities are deterministic/redacted review quality, privacy-safe fixture coverage, additional high-value documented fields, and stronger evidence of external use without telemetry.
+
+See [ROADMAP.md](ROADMAP.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).
