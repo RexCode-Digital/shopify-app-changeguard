@@ -2,6 +2,19 @@
 
 All notable changes to ChangeGuard are documented here. The project follows Semantic Versioning while it remains in the 0.x phase.
 
+## [0.5.0] - 2026-09-30
+
+### Added
+
+- Deterministic `low`, `medium`, and `high` risk levels with rationale for every supported finding.
+- Risk counts in the GitHub Action summary and a `highest_risk` Action output for automation.
+- Risk labels in CLI review output while preserving existing rule IDs, exit codes, and `severity: "review"` compatibility.
+
+### Security and privacy
+
+- Risk classification is category-based review guidance, not Shopify validation or a security approval.
+- Existing redaction behaviour remains unchanged; sensitive configuration values are still excluded from findings and summaries.
+
 ## [0.4.2] - 2026-09-27
 
 ### Correctness

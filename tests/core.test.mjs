@@ -9,6 +9,16 @@ test('reports required scope additions', () => {
   assert.equal(results.length, 1);
   assert.equal(results[0].ruleId, 'SCOPE_REQUIRED_ADDED');
   assert.match(results[0].summary, /read_products/);
+  assert.equal(results[0].riskLevel, 'high');
+  assert.match(results[0].riskRationale, /consent|access|authentication/);
+});
+
+test('assigns lower risk to project discovery changes', () => {
+  const results = compareConfigs(
+    { ...cfg('read_orders'), extension_directories: ['extensions'] },
+    { ...cfg('read_orders'), extension_directories: ['extensions', 'more'] },
+  );
+  assert.equal(results[0].riskLevel, 'low');
 });
 
 test('reports high-impact app setting changes without exposing values', () => {

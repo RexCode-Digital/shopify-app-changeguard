@@ -44,6 +44,8 @@ npx changeguard --base-ref main --head-ref HEAD --all-configs --json
 
 ## Supported checks
 
+Each finding also includes a deterministic risk level (`low`, `medium`, or `high`) and a short rationale so reviewers can prioritize attention. Risk levels are review guidance, not Shopify validation or deployment approval; sensitive values remain redacted.
+
 | Area | Review behaviour |
 | --- | --- |
 | Required and optional access scopes | Additions, removals, and required/optional transitions |

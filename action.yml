@@ -24,6 +24,8 @@ outputs:
     description: Number of semantic review findings
   highest_severity:
     description: Highest finding severity, or none
+  highest_risk:
+    description: Highest deterministic review risk, or none
   report:
     description: JSON review report
   reviewed_file_count:

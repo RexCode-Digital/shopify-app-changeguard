@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { compareConfigs, type Finding } from './core.js';
 import { readConfigAtRef } from './git-refs.js';
+import { metadataFor } from './rule-catalog.js';
 
 export type ReviewFile = { path: string; previousPath?: string; status: 'M' | 'A' | 'D' | 'R'; findings: Finding[] };
 export type ReviewReport = {
@@ -52,7 +53,8 @@ function commonAncestor(base: string, head: string): string {
 }
 
 function lifecycleFinding(ruleId: string, field: string, summary: string): Finding {
-  return { ruleId, severity: 'review', field, summary, category: 'configuration-lifecycle', documentationUrl: 'https://shopify.dev/docs/apps/build/cli-for-apps/manage-app-config-files' };
+  const metadata = metadataFor(ruleId, field);
+  return { ruleId, severity: 'review', field, summary, category: metadata.category, documentationUrl: metadata.documentationUrl, riskLevel: metadata.riskLevel, riskRationale: metadata.riskRationale };
 }
 
 export function reviewGitRange(base: string, head: string): ReviewReport {

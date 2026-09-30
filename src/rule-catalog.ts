@@ -8,6 +8,8 @@ export type RuleCategory =
   | 'project-discovery'
   | 'configuration-lifecycle';
 
+export type RiskLevel = 'low' | 'medium' | 'high';
+
 export type RuleMetadata = {
   ruleId: string;
   category: RuleCategory;
@@ -15,6 +17,8 @@ export type RuleMetadata = {
   explanation: string;
   documentationUrl: string;
   redaction?: string;
+  riskLevel?: RiskLevel;
+  riskRationale?: string;
 };
 
 const APP_CONFIGURATION = 'https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration';
@@ -61,14 +65,33 @@ const RULES: RuleMetadata[] = [
 
 const RULES_BY_ID = new Map(RULES.map((rule) => [rule.ruleId, rule]));
 
+const RISK_BY_CATEGORY: Record<RuleCategory, { level: RiskLevel; rationale: string }> = {
+  authorization: { level: 'high', rationale: 'Can change merchant consent, access, or authentication behaviour.' },
+  identity: { level: 'high', rationale: 'Can change the app or environment a deployment targets.' },
+  routing: { level: 'high', rationale: 'Can redirect app, OAuth, proxy, or merchant-facing traffic.' },
+  'api-access': { level: 'high', rationale: 'Can change how the app obtains or uses Admin API access.' },
+  'event-delivery': { level: 'high', rationale: 'Can change event coverage, payload compatibility, or delivery destinations.' },
+  'runtime-behaviour': { level: 'medium', rationale: 'Can change runtime or installation behaviour without directly changing permissions.' },
+  'project-discovery': { level: 'low', rationale: 'Changes which local project paths Shopify CLI discovers.' },
+  'configuration-lifecycle': { level: 'high', rationale: 'Can change which environment configuration is selected for deployment.' },
+};
+
+function withRisk(rule: Omit<RuleMetadata, 'riskLevel' | 'riskRationale'>): RuleMetadata {
+  const risk = RISK_BY_CATEGORY[rule.category];
+  return { ...rule, riskLevel: risk.level, riskRationale: risk.rationale };
+}
+
 export function metadataFor(ruleId: string, field: string): RuleMetadata {
-  return RULES_BY_ID.get(ruleId) ?? {
+  const rule = RULES_BY_ID.get(ruleId);
+  if (rule) return rule;
+  const category = categoryFor(field);
+  return withRisk({
     ruleId,
-    category: categoryFor(field),
+    category,
     field,
     explanation: 'An internal or otherwise unknown Shopify app configuration value changed.',
     documentationUrl: APP_CONFIGURATION,
-  };
+  });
 }
 
 function categoryFor(field: string): RuleCategory {
@@ -84,4 +107,15 @@ function categoryFor(field: string): RuleCategory {
 
 export function ruleCatalogue(): RuleMetadata[] {
   return RULES.map((rule) => ({ ...rule }));
+}
+
+// Category-level heuristics keep risk deterministic and explainable. Risk is a
+// review-prioritisation signal, not Shopify schema validation or a security verdict.
+for (let index = 0; index < RULES.length; index++) {
+  const rule = RULES[index];
+  if (rule) {
+    const enriched = withRisk(rule);
+    RULES[index] = enriched;
+    RULES_BY_ID.set(enriched.ruleId, enriched);
+  }
 }

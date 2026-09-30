@@ -1,5 +1,5 @@
 export type SummaryReport = {
-  files: Array<{ findings: Array<{ ruleId: string; category?: string; documentationUrl?: string }> }>;
+  files: Array<{ findings: Array<{ ruleId: string; category?: string; documentationUrl?: string; riskLevel?: string }> }>;
   unreviewed: unknown[];
   reviewedFileCount?: number;
   unreviewedFileCount?: number;
@@ -12,6 +12,7 @@ export function renderSummary(report: SummaryReport): string {
   const counts = new Map<string, number>();
   const categories = new Map<string, number>();
   const docs = new Map<string, string>();
+  const risks = new Map<string, number>();
   let total = 0;
   for (const file of report.files) {
     if (!Array.isArray(file.findings)) throw new Error('Invalid findings.');
@@ -22,6 +23,10 @@ export function renderSummary(report: SummaryReport): string {
       counts.set(finding.ruleId, (counts.get(finding.ruleId) ?? 0) + 1);
       if (finding.category) categories.set(finding.category, (categories.get(finding.category) ?? 0) + 1);
       if (finding.documentationUrl) docs.set(finding.ruleId, finding.documentationUrl);
+      if (finding.riskLevel !== undefined) {
+        if (!['low', 'medium', 'high'].includes(finding.riskLevel)) throw new Error('Invalid risk level.');
+        risks.set(finding.riskLevel, (risks.get(finding.riskLevel) ?? 0) + 1);
+      }
       total++;
     }
   }
@@ -33,6 +38,12 @@ export function renderSummary(report: SummaryReport): string {
     `- Unreviewable configurations: ${report.unreviewedFileCount ?? report.unreviewed.length}`,
     '', '### Review status', '',
   ];
+  if (risks.size) {
+    lines.push('', '### Findings by risk', '', '| Risk | Count |', '| --- | ---: |');
+    for (const risk of ['high', 'medium', 'low']) if (risks.has(risk)) lines.push(`| ${risk} | ${risks.get(risk)} |`);
+    const highest = ['high', 'medium', 'low'].find((risk) => risks.has(risk));
+    lines.push('', `Highest risk: **${highest}**.`);
+  }
   if (report.unreviewed.length > 0) {
     lines.push('**Review incomplete:** Some configurations could not be analysed. The check fails.');
   } else if (total > 0) {
