@@ -194,6 +194,14 @@ ChangeGuard does **not**:
 
 It highlights changes that deserve human review.
 
+## Related Shopify developer tools
+
+Building or maintaining Shopify apps?
+
+- **[Shopify Upgrade Guard](https://github.com/efegokdemir/shopify-upgrade-guard)** — Catch documented Shopify API and platform upgrade risks before production migrations.
+
+Both tools are offline, open-source, and require no Shopify credentials.
+
 ## Contributing
 
 Contributions are welcome, especially around new evidence-backed configuration semantics, redaction hardening, privacy-safe fixtures, and deterministic review quality.
