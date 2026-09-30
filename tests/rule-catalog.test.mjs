@@ -28,6 +28,8 @@ test('every production rule ID has explicit catalogue metadata', () => {
     assert.ok(metadata.category);
     assert.ok(metadata.field);
     assert.ok(metadata.explanation);
+    assert.match(metadata.riskLevel, /^(low|medium|high)$/);
+    assert.ok(metadata.riskRationale);
     assert.match(metadata.documentationUrl, /^https:\/\/shopify\.dev\//);
   }
 });

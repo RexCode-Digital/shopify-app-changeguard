@@ -59,6 +59,7 @@ test('bundled Action emits outputs and succeeds for informational findings', () 
     assert.match(outputs, /outcome<<ghadelimiter_/);
     assert.match(outputs, /finding_count<<ghadelimiter_/);
     assert.match(outputs, /highest_severity<<ghadelimiter_/);
+    assert.match(outputs, /highest_risk<<ghadelimiter_/);
     assert.match(outputs, /report<<ghadelimiter_/);
     assert.match(outputs, /reviewed_file_count<<ghadelimiter_/);
     assert.match(outputs, /unreviewed_count<<ghadelimiter_/);

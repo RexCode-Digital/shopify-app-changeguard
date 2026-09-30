@@ -23,6 +23,12 @@ async function main(): Promise<void> {
   core.setOutput('unreviewed_count', String(report.unreviewedFileCount));
   core.setOutput('rule_ids', report.ruleIds.join(','));
   core.setOutput('highest_severity', allFindings.length ? 'review' : 'none');
+  const riskRank = { low: 1, medium: 2, high: 3 } as const;
+  const highestRisk = allFindings.reduce<'none' | 'low' | 'medium' | 'high'>((highest, finding) => {
+    const risk = finding.riskLevel ?? 'medium';
+    return riskRank[risk] > (highest === 'none' ? 0 : riskRank[highest]) ? risk : highest;
+  }, 'none');
+  core.setOutput('highest_risk', highestRisk);
   core.setOutput('report', JSON.stringify(report));
   await core.summary.addRaw(renderSummary(report)).write();
   if (policy === 'unreviewed' && report.unreviewed.length > 0) {

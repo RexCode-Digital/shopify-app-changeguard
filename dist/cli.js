@@ -108,7 +108,7 @@ async function main() {
                 console.log(report.note);
                 for (const reviewed of report.files)
                     for (const finding of reviewed.findings)
-                        console.log(`[REVIEW] ${finding.ruleId}: ${finding.summary}`);
+                        console.log(`[${(finding.riskLevel ?? 'medium').toUpperCase()}] ${finding.ruleId}: ${finding.summary}`);
                 console.log(`${report.files.flatMap((item) => item.findings).length} finding(s) across ${report.reviewedFileCount} reviewed configuration file(s).`);
                 if (report.unreviewed.length)
                     console.log(`${report.unreviewed.length} configuration file(s) could not be reviewed.`);

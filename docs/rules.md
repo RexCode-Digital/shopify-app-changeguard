@@ -2,6 +2,16 @@
 
 ChangeGuard reports review findings, not approvals. Findings never include client IDs, URLs, webhook destinations, topics, filters, or included field names.
 
+## Risk levels
+
+Every finding includes a deterministic `riskLevel` and `riskRationale` in JSON and Action reports. The levels prioritize human review; they do not validate Shopify configuration or certify security.
+
+- **high** — authorization, identity, routing, API access, event delivery, or configuration lifecycle changes that can affect access, deployment targets, traffic, or delivery.
+- **medium** — runtime-behaviour changes that can affect installation or execution without directly changing permissions.
+- **low** — project-discovery changes that affect which local paths Shopify CLI discovers.
+
+The same category-based heuristic is used for all rules so results remain stable and explainable. Existing `severity: "review"` and failure policies are unchanged.
+
 | Rule | Trigger | Reviewer implication |
 | --- | --- | --- |
 | `SCOPE_REQUIRED_ADDED` / `SCOPE_REQUIRED_REMOVED` | Required scope set changes | Re-check least privilege and merchant consent |

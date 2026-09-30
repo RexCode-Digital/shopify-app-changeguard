@@ -28,6 +28,19 @@ test('counts findings by rule', () => {
   assert.match(text, /\| WEBHOOK_CHANGED \| 1 \|/);
 });
 
+test('renders risk counts and highest risk', () => {
+  const text = renderSummary({
+    files: [{ findings: [
+      { ruleId: 'SCOPE_REQUIRED_ADDED', riskLevel: 'high' },
+      { ruleId: 'EXTENSION_DIRECTORIES_CHANGED', riskLevel: 'low' },
+    ] }],
+    unreviewed: [],
+  });
+  assert.match(text, /Findings by risk/);
+  assert.match(text, /\| high \| 1 \|/);
+  assert.match(text, /Highest risk: \*\*high\*\*/);
+});
+
 test('does not expose paths, URLs or finding descriptions', () => {
   const secret = 'PRIVATE_MARKER_91BC';
   const text = renderSummary({

@@ -5,6 +5,7 @@ export function renderSummary(report) {
     const counts = new Map();
     const categories = new Map();
     const docs = new Map();
+    const risks = new Map();
     let total = 0;
     for (const file of report.files) {
         if (!Array.isArray(file.findings))
@@ -18,6 +19,11 @@ export function renderSummary(report) {
                 categories.set(finding.category, (categories.get(finding.category) ?? 0) + 1);
             if (finding.documentationUrl)
                 docs.set(finding.ruleId, finding.documentationUrl);
+            if (finding.riskLevel !== undefined) {
+                if (!['low', 'medium', 'high'].includes(finding.riskLevel))
+                    throw new Error('Invalid risk level.');
+                risks.set(finding.riskLevel, (risks.get(finding.riskLevel) ?? 0) + 1);
+            }
             total++;
         }
     }
@@ -29,6 +35,14 @@ export function renderSummary(report) {
         `- Unreviewable configurations: ${report.unreviewedFileCount ?? report.unreviewed.length}`,
         '', '### Review status', '',
     ];
+    if (risks.size) {
+        lines.push('', '### Findings by risk', '', '| Risk | Count |', '| --- | ---: |');
+        for (const risk of ['high', 'medium', 'low'])
+            if (risks.has(risk))
+                lines.push(`| ${risk} | ${risks.get(risk)} |`);
+        const highest = ['high', 'medium', 'low'].find((risk) => risks.has(risk));
+        lines.push('', `Highest risk: **${highest}**.`);
+    }
     if (report.unreviewed.length > 0) {
         lines.push('**Review incomplete:** Some configurations could not be analysed. The check fails.');
     }

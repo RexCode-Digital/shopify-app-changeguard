@@ -35,7 +35,8 @@ The Action reviews changed Shopify app TOML files and writes a job summary
 containing counts, rule IDs, documentation links, and an explicit review
 status. It keeps TOML-derived text out of raw workflow-command output and
 exposes the structured report through outputs: `outcome`, `finding_count`,
-`reviewed_file_count`, `unreviewed_count`, `rule_ids`, `highest_severity`,
+`reviewed_file_count`, `unreviewed_count`, `rule_ids`, `highest_severity`, and
+`highest_risk`,
 and `report`. Set `fail_on`
 to `never`, `review`, or `unreviewed`; the default fails only when review
 is incomplete.

@@ -1,6 +1,7 @@
 import { spawnSync } from 'node:child_process';
 import { compareConfigs } from './core.js';
 import { readConfigAtRef } from './git-refs.js';
+import { metadataFor } from './rule-catalog.js';
 const validSha = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/;
 export const configFile = /(^|\/)shopify\.app(?:\.[^/]+)?\.toml$/;
 function gitDiff(ancestor, head) {
@@ -42,7 +43,8 @@ function commonAncestor(base, head) {
     return ancestor;
 }
 function lifecycleFinding(ruleId, field, summary) {
-    return { ruleId, severity: 'review', field, summary, category: 'configuration-lifecycle', documentationUrl: 'https://shopify.dev/docs/apps/build/cli-for-apps/manage-app-config-files' };
+    const metadata = metadataFor(ruleId, field);
+    return { ruleId, severity: 'review', field, summary, category: metadata.category, documentationUrl: metadata.documentationUrl, riskLevel: metadata.riskLevel, riskRationale: metadata.riskRationale };
 }
 export function reviewGitRange(base, head) {
     if (!validSha.test(base) || !validSha.test(head))

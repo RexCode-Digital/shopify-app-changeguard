@@ -120,7 +120,13 @@ function compareRootSettings(before, after) {
 function decorate(findings) {
     return findings.map((finding) => {
         const metadata = metadataFor(finding.ruleId, finding.field);
-        return { ...finding, category: metadata.category, documentationUrl: metadata.documentationUrl };
+        return {
+            ...finding,
+            category: metadata.category,
+            documentationUrl: metadata.documentationUrl,
+            riskLevel: metadata.riskLevel,
+            riskRationale: metadata.riskRationale,
+        };
     });
 }
 export function compareConfigs(before, after) {

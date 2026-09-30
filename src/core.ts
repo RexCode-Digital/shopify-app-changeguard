@@ -2,7 +2,7 @@ import { compareClientIds } from './client-id.js';
 import { compareUrls } from './urls.js';
 import { compareWebhooks } from './webhooks.js';
 import { compareEvents } from './events.js';
-import { metadataFor, type RuleCategory } from './rule-catalog.js';
+import { metadataFor, type RiskLevel, type RuleCategory } from './rule-catalog.js';
 
 export type Severity = 'review';
 export type Finding = {
@@ -12,6 +12,8 @@ export type Finding = {
   summary: string;
   category?: RuleCategory;
   documentationUrl?: string;
+  riskLevel?: RiskLevel;
+  riskRationale?: string;
 };
 
 export type Config = Record<string, unknown>;
@@ -124,7 +126,13 @@ function compareRootSettings(before: Config, after: Config): Finding[] {
 function decorate(findings: Finding[]): Finding[] {
   return findings.map((finding) => {
     const metadata = metadataFor(finding.ruleId, finding.field);
-    return { ...finding, category: metadata.category, documentationUrl: metadata.documentationUrl };
+    return {
+      ...finding,
+      category: metadata.category,
+      documentationUrl: metadata.documentationUrl,
+      riskLevel: metadata.riskLevel,
+      riskRationale: metadata.riskRationale,
+    };
   });
 }
 
