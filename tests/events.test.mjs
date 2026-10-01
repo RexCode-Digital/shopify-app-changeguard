@@ -42,6 +42,38 @@ test('reports subscription modifications without leaking destinations or queries
   assert.doesNotMatch(JSON.stringify(findings), /old_secret|new-secret|status:ACTIVE/);
 });
 
+test('redacts every synthetic Events delivery detail in a modification', () => {
+  const before = cfg({
+    subscription: [
+      subscription('SYNTHETIC_EVENTS_OLD_11A', {
+        actions: ['update'],
+        triggers: ['product.title'],
+        uri: 'https://old-events.example/SYNTHETIC_URI_22B',
+        query: 'query SYNTHETIC_QUERY_OLD { product { id } }',
+        query_filter: 'SYNTHETIC_FILTER_OLD_33C',
+      }),
+    ],
+  });
+  const after = cfg({
+    subscription: [
+      subscription('SYNTHETIC_EVENTS_NEW_44D', {
+        actions: ['create'],
+        triggers: ['product.status'],
+        uri: 'https://new-events.example/SYNTHETIC_URI_55E',
+        query: 'query SYNTHETIC_QUERY_NEW { product { title } }',
+        query_filter: 'SYNTHETIC_FILTER_NEW_66F',
+      }),
+    ],
+  });
+
+  const findings = compareConfigs(before, after);
+  const output = JSON.stringify(findings);
+
+  assert.deepEqual(findings.map(({ ruleId }) => ruleId), ['EVENTS_SUBSCRIPTIONS_CHANGED']);
+  assert.match(findings[0].summary, /added: 1; removed: 1; modified: 0/);
+  assert.doesNotMatch(output, /SYNTHETIC_EVENTS|SYNTHETIC_URI|SYNTHETIC_QUERY|SYNTHETIC_FILTER|old-events|new-events/);
+});
+
 test('ignores subscription order and action/trigger order', () => {
   const before = cfg({ api_version: 'unstable', subscription: [
     subscription('product-events', { actions: ['update', 'create'], triggers: ['product.title', 'product.status'] }),
