@@ -199,6 +199,7 @@ It highlights changes that deserve human review.
 Building or maintaining Shopify apps?
 
 - **[Shopify Upgrade Guard](https://github.com/efegokdemir/shopify-upgrade-guard)** — Catch documented Shopify API and platform upgrade risks before production migrations.
+- **[Shopify Scope Guard](https://github.com/efegokdemir/shopify-scope-guard)** — Audit whether declared Shopify permissions are supported by offline code evidence.
 
 Both tools are offline, open-source, and require no Shopify credentials.
 
