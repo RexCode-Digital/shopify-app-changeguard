@@ -35,6 +35,49 @@ test('reports redirect set changes without exposing URL values', () => {
   assert.doesNotMatch(JSON.stringify(findings), /SECRET_OLD|SECRET_NEW|old\.test|new\.test/);
 });
 
+test('redacts all supported URL-bearing configuration fields', () => {
+  const before = cfg({
+    application_url: 'https://old.example.test/app',
+    auth: { redirect_urls: ['https://old.example.test/callback'] },
+    customer_authentication: {
+      redirect_uris: ['https://old.example.test/customer'],
+      javascript_origins: ['https://old.example.test'],
+      logout_urls: ['https://old.example.test/logout'],
+    },
+    app_proxy: { url: 'https://old.example.test/proxy', prefix: 'apps', subpath: 'old' },
+    app_preferences: { url: 'https://old.example.test/preferences' },
+  });
+  const after = cfg({
+    application_url: 'https://new.example.test/app',
+    auth: { redirect_urls: ['https://new.example.test/callback'] },
+    customer_authentication: {
+      redirect_uris: ['https://new.example.test/customer'],
+      javascript_origins: ['https://new.example.test'],
+      logout_urls: ['https://new.example.test/logout'],
+    },
+    app_proxy: { url: 'https://new.example.test/proxy', prefix: 'apps', subpath: 'new' },
+    app_preferences: { url: 'https://new.example.test/preferences' },
+  });
+
+  const findings = compareConfigs(before, after);
+  const output = JSON.stringify(findings);
+
+  assert.ok(findings.length >= 6);
+  assert.doesNotMatch(output, /old\.example\.test|new\.example\.test/);
+});
+
+test('does not echo a sensitive URL when URL validation fails', () => {
+  const secret = 'SYNTHETIC_INVALID_URL_7A4';
+  assert.throws(
+    () => compareConfigs(cfg(), cfg({ application_url: [secret] })),
+    (error) => {
+      assert.match(error.message, /application_url/);
+      assert.equal(error.message.includes(secret), false);
+      return true;
+    },
+  );
+});
+
 test('rejects invalid URL field shapes instead of claiming success', () => {
   assert.throws(() => compareConfigs(cfg(), cfg({ application_url: 123 })), /application_url/);
   assert.throws(() => compareConfigs(cfg(), cfg({ auth: 'invalid' })), /\[auth\]/);

@@ -192,6 +192,34 @@ test('reports delivery filter changes without exposing filter values', () => {
   assert.equal(output.includes(newFilter), false);
 });
 
+test('keeps synthetic webhook metadata redacted across set-like changes', () => {
+  const before = cfg({
+    subscriptions: [
+      subscription(['orders/create', 'products/update'], '/synthetic-old', {
+        include_fields: ['id', 'SYNTHETIC_FIELD_OLD_71A'],
+        filter: 'SYNTHETIC_FILTER_OLD_82B',
+      }),
+      { compliance_topics: ['customers/redact', 'customers/data_request'], uri: '/compliance' },
+    ],
+  });
+  const after = cfg({
+    subscriptions: [
+      { compliance_topics: ['customers/data_request', 'customers/redact'], uri: '/compliance' },
+      subscription(['products/update', 'orders/create'], '/synthetic-new', {
+        include_fields: ['SYNTHETIC_FIELD_NEW_93C', 'id'],
+        filter: 'SYNTHETIC_FILTER_NEW_04D',
+      }),
+    ],
+  });
+
+  const findings = compareConfigs(before, after);
+  const output = JSON.stringify(findings);
+
+  assert.deepEqual(findings.map(({ ruleId }) => ruleId), ['WEBHOOK_SUBSCRIPTIONS_CHANGED']);
+  assert.match(findings[0].summary, /added: 0; removed: 0; modified: 2/);
+  assert.doesNotMatch(output, /SYNTHETIC_FIELD|SYNTHETIC_FILTER|synthetic-old|synthetic-new/);
+});
+
 test('reports webhook API version addition and removal without values', () => {
   const version = 'SYNTHETIC_API_VERSION_3F8';
 
