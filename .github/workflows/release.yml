@@ -41,3 +41,20 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" --title "ChangeGuard $GITHUB_REF_NAME" --generate-notes
+
+  maintain-minor-alias:
+    name: Maintain minor release alias
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+      - name: Move minor alias to released commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          alias="${GITHUB_REF_NAME%.*}"
+          git tag -f "$alias" "$GITHUB_SHA"
+          git push --force origin "refs/tags/$alias"

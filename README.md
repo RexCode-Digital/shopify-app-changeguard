@@ -90,6 +90,8 @@ For security-sensitive workflows, pin third-party Actions to a reviewed immutabl
 
 See the [Action guide](docs/github-action.md) and [copy-paste workflow example](examples/changeguard-workflow.yml).
 
+For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-app-changeguard@v0.5`. For high-assurance supply-chain usage, pin the full commit SHA as shown above; minor aliases are not immutable.
+
 ### Action inputs
 
 | Input | Purpose |
