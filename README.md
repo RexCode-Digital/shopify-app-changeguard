@@ -81,7 +81,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: efegokdemir/shopify-app-changeguard@v0.5.1 # current patch release; resolve to a SHA below
+      - uses: efegokdemir/shopify-app-changeguard@1aa53118ea9d8c47d2d362cb33acd18156624914 # v0.5.1
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -235,7 +235,7 @@ MIT — see [LICENSE](LICENSE).
 
 ## Immutable SHA usage
 
-Resolve the release commit, review it, and replace `@v0.5.1` in the Action example with that full SHA:
+The Action example pins the reviewed v0.5.1 release commit. Verify the release reference with:
 
 ```bash
 gh api repos/efegokdemir/shopify-app-changeguard/git/ref/tags/v0.5.1 --jq .object.sha
