@@ -27,7 +27,7 @@ jobs:
       - run: npm run package:check
       - run: npm run package:smoke
       - run: npm run action:check
-      - run: git diff --exit-code -- package.json package-lock.json dist/action
+      - run: git diff --exit-code -- package.json package-lock.json dist
   platforms:
     strategy:
       matrix:
