@@ -1,6 +1,14 @@
 import { execFileSync } from 'node:child_process';
 import { parse } from '@iarna/toml';
 const MAX_BYTES = 1024 * 1024;
+export function resolveCommitRef(ref) {
+    if (!/^[A-Za-z0-9][A-Za-z0-9._/~^-]*$/.test(ref) || ref.includes('..'))
+        throw new Error('Invalid Git revision');
+    const commit = git(['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`], process.cwd()).toString('utf8').trim();
+    if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(commit))
+        throw new Error('Invalid resolved Git commit');
+    return commit;
+}
 function git(args, cwd) {
     try {
         return execFileSync('git', args, {
@@ -30,6 +38,9 @@ export function readConfigAtRef(ref, file) {
     if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(commit)) {
         throw new Error('Invalid resolved Git commit');
     }
+    const entry = git(['ls-tree', '-z', commit, '--', file], root).toString('utf8');
+    if (!/^100(?:644|755) blob /.test(entry))
+        throw new Error('Git configuration must be a regular file');
     const contents = git(['cat-file', 'blob', `${commit}:${file}`], root);
     if (contents.length > MAX_BYTES || contents.includes(0)) {
         throw new Error('Git configuration must be a text file up to 1 MiB');

@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.1
+
+- Fail closed on incomplete reviews under both review and unreviewed policies.
+- Resolve named Git refs for repository-wide comparisons and reject configuration symlinks, including Git type changes.
+- Make summaries accurately describe the selected failure policy and add focused regressions.
+
 All notable changes to ChangeGuard are documented here. The project follows Semantic Versioning while it remains in the 0.x phase.
 
 ## [0.5.0] - 2026-09-30

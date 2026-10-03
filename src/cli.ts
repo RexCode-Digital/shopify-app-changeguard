@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, lstat } from 'node:fs/promises';
 import { parse } from '@iarna/toml';
 import { compareConfigs } from './core.js';
-import { readConfigAtRef } from './git-refs.js';
+import { readConfigAtRef, resolveCommitRef } from './git-refs.js';
 import { reviewGitRange } from './pr-review.js';
 import { CHANGEGUARD_VERSION } from './generated-version.js';
 
@@ -33,7 +33,7 @@ Exit codes:
 }
 
 async function readConfig(path: string): Promise<Record<string, unknown>> {
-  const info = await stat(path);
+  const info = await lstat(path);
   if (!info.isFile() || info.size > 1024 * 1024) {
     throw new Error('Input must be a regular TOML file up to 1 MiB: ' + path);
   }
@@ -92,7 +92,7 @@ async function main(): Promise<void> {
   if (gitMode) {
     if (!baseRef || !headRef || (file === undefined && !allConfigs) || (file !== undefined && allConfigs)) usage();
     if (allConfigs) {
-      const report = reviewGitRange(baseRef, headRef);
+      const report = reviewGitRange(resolveCommitRef(baseRef), resolveCommitRef(headRef));
       if (json) console.log(JSON.stringify(report, null, 2));
       else {
         console.log(`ChangeGuard v${VERSION}`);
@@ -101,7 +101,7 @@ async function main(): Promise<void> {
         console.log(`${report.files.flatMap((item) => item.findings).length} finding(s) across ${report.reviewedFileCount} reviewed configuration file(s).`);
         if (report.unreviewed.length) console.log(`${report.unreviewed.length} configuration file(s) could not be reviewed.`);
       }
-      if (failOn === 'unreviewed' && report.unreviewed.length > 0) process.exitCode = 2;
+      if (failOn !== 'never' && report.unreviewed.length > 0) process.exitCode = 2;
       else if (failOn === 'review' && report.files.some((item) => item.findings.length > 0)) process.exitCode = 1;
       return;
     }

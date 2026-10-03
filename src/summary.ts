@@ -45,9 +45,9 @@ export function renderSummary(report: SummaryReport): string {
     lines.push('', `Highest risk: **${highest}**.`);
   }
   if (report.unreviewed.length > 0) {
-    lines.push('**Review incomplete:** Some configurations could not be analysed. The check fails.');
+    lines.push('**Review incomplete:** Some configurations could not be analysed. The configured failure policy determines the check result.');
   } else if (total > 0) {
-    lines.push('**Manual review recommended:** Supported-field changes were found. Findings are informational and do not fail the check.');
+    lines.push('**Manual review recommended:** Supported-field changes were found. The configured failure policy determines the check result.');
   } else {
     lines.push('**No supported-field changes detected.** This is not a deployment or security approval.');
   }
