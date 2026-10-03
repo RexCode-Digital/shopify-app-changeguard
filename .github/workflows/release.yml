@@ -54,6 +54,8 @@ jobs:
 
   maintain-minor-alias:
     name: Maintain minor release alias
+    permissions:
+      contents: write
     needs: release
     runs-on: ubuntu-latest
     steps:
