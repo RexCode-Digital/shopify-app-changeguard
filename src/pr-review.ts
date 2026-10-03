@@ -38,8 +38,8 @@ function gitDiff(ancestor: string, head: string): Change[] {
       changes.push({ status: 'R', previousPath, path });
     } else {
       const path = parts[i++];
-      if (!path || !['M', 'A', 'D'].includes(status)) throw new Error('Unexpected Git diff output.');
-      changes.push({ status: status as 'M' | 'A' | 'D', path });
+      if (!path || !['M', 'A', 'D', 'T'].includes(status)) throw new Error('Unexpected Git diff output.');
+      changes.push({ status: status === 'T' ? 'M' : status as 'M' | 'A' | 'D', path });
     }
   }
   return changes;

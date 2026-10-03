@@ -42,7 +42,7 @@ test('renders risk counts and highest risk', () => {
 });
 
 test('does not expose paths, URLs or finding descriptions', () => {
-  const secret = 'PRIVATE_MARKER_91BC';
+  const secret = 'PRIVATE_MARKER_91BC'; // gitleaks:allow -- synthetic redaction test marker
   const text = renderSummary({
     files: [{
       path: `config-${secret}.toml`,
@@ -101,7 +101,7 @@ test('shows explicit review status for informational findings', () => {
   });
 
   assert.match(text, /Manual review recommended:/);
-  assert.match(text, /informational and do not fail the check/);
+  assert.match(text, /configured failure policy/);
   assert.doesNotMatch(text, /Review incomplete:/);
 });
 
@@ -112,7 +112,7 @@ test('shows an incomplete review when configurations cannot be analysed', () => 
   });
 
   assert.match(text, /Review incomplete:/);
-  assert.match(text, /The check fails/);
+  assert.match(text, /configured failure policy/);
   assert.doesNotMatch(text, /Manual review recommended:/);
 });
 

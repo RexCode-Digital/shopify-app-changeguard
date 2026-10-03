@@ -15,12 +15,12 @@ with the following contents:
       review:
         runs-on: ubuntu-latest
         steps:
-          - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+          - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
             with:
               fetch-depth: 0
               persist-credentials: false
 
-          - uses: efegokdemir/shopify-app-changeguard@1fee675575e3dfbbe2c8d702323aa7c4240efcb1 # v0.5.0
+          - uses: efegokdemir/shopify-app-changeguard@1aa53118ea9d8c47d2d362cb33acd18156624914 # v0.5.1
             with:
               base_sha: ${{ github.event.pull_request.base.sha }}
               head_sha: ${{ github.event.pull_request.head.sha }}
@@ -44,27 +44,12 @@ is incomplete.
 Review outcomes:
 
 - No supported-field changes detected: the check succeeds.
-- Manual review recommended: findings are informational and the check succeeds.
-- Review incomplete: unreviewable configurations cause the check to fail.
+- Manual review recommended: `fail_on: review` fails; `never` and `unreviewed` permit findings.
+- Review incomplete: unreviewable configurations fail with `review` or `unreviewed`; `never` permits the incomplete result.
 
 The job summary does not print configuration values, file paths or finding
 descriptions. The `report` output contains structured finding details and
 should be treated as repository-sensitive automation data.
-
-## External integration validation
-
-On 17 September 2026, this pinned Action commit was exercised in a
-separate private test repository using synthetic Shopify configurations.
-
-The validation covered:
-
-- A changed configuration with five findings. The Action succeeded and
-  displayed the Manual review recommended status.
-- A deliberately malformed TOML configuration. The Action exited with
-  code 2 and displayed Review incomplete with one unreviewable file.
-
-These tests validate the two scenarios described above. They are not a
-security audit, deployment approval or guarantee for other repositories.
 
 For fork pull requests, use the normal `pull_request` event and keep
 `contents: read`. Do not switch to `pull_request_target` merely to make

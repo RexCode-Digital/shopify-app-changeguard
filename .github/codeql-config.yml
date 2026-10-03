@@ -1,0 +1,5 @@
+name: Product source analysis
+# Generated bundles duplicate product source and contain unused vendor printers.
+# Bundle/source agreement is separately enforced by action:check.
+paths-ignore:
+  - dist

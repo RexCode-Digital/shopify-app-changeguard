@@ -1,6 +1,6 @@
 {
   "name": "shopify-app-changeguard",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Unofficial offline semantic change review for Shopify app configuration files",
   "type": "module",
   "engines": {
@@ -12,10 +12,10 @@
   "scripts": {
     "prebuild": "node scripts/write-version.mjs",
     "build": "tsc -p tsconfig.json && ncc build dist/action.js -o dist/action --minify",
-    "test": "npm run build && node --test tests/*.test.mjs",
+    "test": "npm run build && node --test",
     "check": "node dist/cli.js",
     "lint": "tsc -p tsconfig.json --noEmit",
-    "coverage": "npm run build && c8 --exclude 'dist/action/**' --reporter=text --reporter=json-summary --check-coverage --lines 80 --functions 80 --branches 70 --statements 80 node --test tests/*.test.mjs",
+    "coverage": "npm run build && c8 --include 'dist/*.js' --reporter=text --reporter=json-summary --check-coverage --lines 80 --functions 80 --branches 70 --statements 80 node --test",
     "format:check": "git diff --check",
     "package:check": "npm pack --dry-run",
     "package:smoke": "node scripts/package-smoke.mjs",
@@ -64,5 +64,5 @@
     "dist/events.js",
     "dist/generated-version.js"
   ],
-  "author": "Efe Gökdemir"
+  "author": "Efe G\u00f6kdemir"
 }

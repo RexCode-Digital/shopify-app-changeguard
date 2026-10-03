@@ -15,6 +15,8 @@ ChangeGuard is an offline, read-only semantic reviewer for `shopify.app*.toml` c
 
 > Unofficial open-source developer tooling. Not affiliated with, endorsed by, or certified by Shopify.
 
+Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. [Releases](https://github.com/efegokdemir/shopify-app-changeguard/releases) · [npm](https://www.npmjs.com/package/shopify-app-changeguard) · [Marketplace](https://github.com/marketplace/actions/changeguard-shopify-app-config-review)
+
 ## Quick start
 
 Compare two Shopify app configuration files without installing globally:
@@ -79,7 +81,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: efegokdemir/shopify-app-changeguard@1fee675575e3dfbbe2c8d702323aa7c4240efcb1 # v0.5.0
+      - uses: efegokdemir/shopify-app-changeguard@1aa53118ea9d8c47d2d362cb33acd18156624914 # v0.5.1
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -90,7 +92,7 @@ For security-sensitive workflows, pin third-party Actions to a reviewed immutabl
 
 See the [Action guide](docs/github-action.md) and [copy-paste workflow example](examples/changeguard-workflow.yml).
 
-For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-app-changeguard@v0.5`. For high-assurance supply-chain usage, pin the full commit SHA as shown above; minor aliases are not immutable.
+For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-app-changeguard@v0.5`. For high-assurance supply-chain usage, resolve the current patch release to a full commit SHA; minor aliases are not immutable.
 
 ### Action inputs
 
@@ -163,7 +165,7 @@ npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --json
 npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --fail-on review
 ```
 
-`--fail-on never` is the default. `review` exits 1 when findings exist. Invalid or unreviewable input exits 2.
+`--fail-on never` is the default. `review` exits 1 when findings exist. Input errors exit 2. In Git-range mode, incomplete reviews exit 2 under `review` or `unreviewed`; `never` reports them without failing.
 
 See the [CLI reference](docs/cli.md).
 
@@ -204,7 +206,7 @@ Building or maintaining Shopify apps?
 - **[Shopify Scope Guard](https://github.com/efegokdemir/shopify-scope-guard)** — Audit whether declared Shopify access scopes are supported by offline code evidence.
 - **[Shopify App Review Guard](https://github.com/efegokdemir/shopify-app-review-guard)** — Run deterministic preflight checks for Shopify App Store and production readiness.
 
-Both tools are offline, open-source, and require no Shopify credentials.
+All four tools run offline and require no Shopify credentials.
 
 ## Contributing
 
@@ -230,3 +232,13 @@ See [ROADMAP.md](ROADMAP.md).
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Immutable SHA usage
+
+The Action example pins the reviewed v0.5.1 release commit. Verify the release reference with:
+
+```bash
+gh api repos/efegokdemir/shopify-app-changeguard/git/ref/tags/v0.5.1 --jq .object.sha
+```
+
+Published patch tags are retained; existing minor aliases are movable. A reviewed full commit SHA is the immutable execution reference.

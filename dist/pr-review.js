@@ -28,9 +28,9 @@ function gitDiff(ancestor, head) {
         }
         else {
             const path = parts[i++];
-            if (!path || !['M', 'A', 'D'].includes(status))
+            if (!path || !['M', 'A', 'D', 'T'].includes(status))
                 throw new Error('Unexpected Git diff output.');
-            changes.push({ status: status, path });
+            changes.push({ status: status === 'T' ? 'M' : status, path });
         }
     }
     return changes;

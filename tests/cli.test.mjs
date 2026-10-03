@@ -102,7 +102,7 @@ test('CLI reviews every changed Shopify app configuration with --all-configs', (
     git('add', '.');
     git('commit', '-q', '-m', 'head');
     const head = spawnSync('git', ['rev-parse', 'HEAD'], { cwd: directory, encoding: 'utf8' }).stdout.trim();
-    const result = run(['--base-ref', base, '--head-ref', head, '--all-configs', '--json'], directory);
+    const result = run(['--base-ref', 'HEAD~1', '--head-ref', 'HEAD', '--all-configs', '--json'], directory);
     assert.equal(result.status, 0, result.stderr);
     const report = JSON.parse(result.stdout);
     assert.equal(report.changedFileCount, 1);
@@ -334,4 +334,26 @@ test('CLI rejects malformed webhook destinations without exposing values', () =>
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }
+});
+
+test('CLI rejects symlink file inputs', t => {
+  const directory = mkdtempSync(join(tmpdir(), 'changeguard-link-'));
+  t.after(() => rmSync(directory, {recursive:true,force:true}));
+  const link = join(directory,'linked.toml');
+  return import('node:fs').then(({symlinkSync}) => {
+    try { symlinkSync(before, link); } catch (error) { if(error.code === 'EPERM') return t.skip('Symlink privileges unavailable'); throw error; }
+    const result=run(['--before',link,'--after',after]);
+    assert.equal(result.status,2);assert.match(result.stderr,/regular TOML/);
+  });
+});
+
+test('Git type changes are incomplete and fail closed under review policy', async t => {
+  const { symlinkSync, unlinkSync } = await import('node:fs');
+  const directory=mkdtempSync(join(tmpdir(),'changeguard-type-'));t.after(()=>rmSync(directory,{recursive:true,force:true}));
+  const git=(...args)=>spawnSync('git',args,{cwd:directory,encoding:'utf8'});
+  git('init','-q','-b','main');git('config','user.name','Tests');git('config','user.email','tests@example.invalid');
+  const file=join(directory,'shopify.app.toml');writeFileSync(file,'[access_scopes]\nscopes="read_products"');git('add','.');git('commit','-qm','base');
+  unlinkSync(file);try{symlinkSync('outside.toml',file);}catch(error){if(error.code==='EPERM')return t.skip('Symlink privileges unavailable');throw error;}
+  git('add','.');git('commit','-qm','type change');
+  const result=run(['--base-ref','HEAD~1','--head-ref','HEAD','--all-configs','--json','--fail-on','review'],directory);assert.equal(result.status,2,result.stderr);assert.equal(JSON.parse(result.stdout).unreviewedFileCount,1);
 });

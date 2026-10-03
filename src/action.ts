@@ -31,7 +31,7 @@ async function main(): Promise<void> {
   core.setOutput('highest_risk', highestRisk);
   core.setOutput('report', JSON.stringify(report));
   await core.summary.addRaw(renderSummary(report)).write();
-  if (policy === 'unreviewed' && report.unreviewed.length > 0) {
+  if (policy !== 'never' && report.unreviewed.length > 0) {
     throw new Error('Review incomplete: one or more configurations could not be analyzed.');
   }
   if (policy === 'review' && allFindings.length > 0) throw new Error('Review findings detected.');
