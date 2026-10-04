@@ -8,7 +8,7 @@ Only the latest published release and the default branch are supported for secur
 
 ## Report a vulnerability
 
-Use [GitHub private vulnerability reporting](https://github.com/efegokdemir/shopify-app-changeguard/security/advisories/new) for this repository. It is enabled for this public repository. Do not open a public issue for a suspected vulnerability. Include a minimal reproduction, affected version or commit, impact, and a safe mitigation if known.
+Use [GitHub private vulnerability reporting](https://github.com/RexCode-Digital/shopify-app-changeguard/security/advisories/new) for this repository. It is enabled for this public repository. Do not open a public issue for a suspected vulnerability. Include a minimal reproduction, affected version or commit, impact, and a safe mitigation if known.
 
 Never include secrets, customer data, private URLs, credentials, or production configuration. The maintainer will acknowledge, reproduce, assess, and publish a sanitised advisory or release note when appropriate. Response timing is not a guarantee.
 

@@ -4,10 +4,10 @@
 
 [![npm](https://img.shields.io/npm/v/shopify-app-changeguard?logo=npm)](https://www.npmjs.com/package/shopify-app-changeguard)
 [![npm downloads](https://img.shields.io/npm/dm/shopify-app-changeguard?logo=npm)](https://www.npmjs.com/package/shopify-app-changeguard)
-[![CI](https://github.com/efegokdemir/shopify-app-changeguard/actions/workflows/ci.yml/badge.svg)](https://github.com/efegokdemir/shopify-app-changeguard/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/efegokdemir/shopify-app-changeguard/actions/workflows/codeql.yml/badge.svg)](https://github.com/efegokdemir/shopify-app-changeguard/actions/workflows/codeql.yml)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/efegokdemir/shopify-app-changeguard/badge)](https://securityscorecards.dev/viewer/?uri=github.com/efegokdemir/shopify-app-changeguard)
-[![license](https://img.shields.io/github/license/efegokdemir/shopify-app-changeguard)](LICENSE)
+[![CI](https://github.com/RexCode-Digital/shopify-app-changeguard/actions/workflows/ci.yml/badge.svg)](https://github.com/RexCode-Digital/shopify-app-changeguard/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/RexCode-Digital/shopify-app-changeguard/actions/workflows/codeql.yml/badge.svg)](https://github.com/RexCode-Digital/shopify-app-changeguard/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/RexCode-Digital/shopify-app-changeguard/badge)](https://securityscorecards.dev/viewer/?uri=github.com/RexCode-Digital/shopify-app-changeguard)
+[![license](https://img.shields.io/github/license/RexCode-Digital/shopify-app-changeguard)](LICENSE)
 
 ChangeGuard is an offline, read-only semantic reviewer for `shopify.app*.toml` changes. It helps reviewers see configuration changes that deserve attention, assigns deterministic risk levels, and redacts sensitive configuration values from findings and summaries.
 
@@ -15,7 +15,7 @@ ChangeGuard is an offline, read-only semantic reviewer for `shopify.app*.toml` c
 
 > Unofficial open-source developer tooling. Not affiliated with, endorsed by, or certified by Shopify.
 
-Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. [Releases](https://github.com/efegokdemir/shopify-app-changeguard/releases) · [npm](https://www.npmjs.com/package/shopify-app-changeguard) · [Marketplace](https://github.com/marketplace/actions/changeguard-shopify-app-config-review)
+Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. [Releases](https://github.com/RexCode-Digital/shopify-app-changeguard/releases) · [npm](https://www.npmjs.com/package/shopify-app-changeguard) · [Marketplace](https://github.com/marketplace/actions/changeguard-shopify-app-config-review)
 
 ## Quick start
 
@@ -81,7 +81,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: efegokdemir/shopify-app-changeguard@1aa53118ea9d8c47d2d362cb33acd18156624914 # v0.5.1
+      - uses: RexCode-Digital/shopify-app-changeguard@1aa53118ea9d8c47d2d362cb33acd18156624914 # v0.5.1
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -92,7 +92,7 @@ For security-sensitive workflows, pin third-party Actions to a reviewed immutabl
 
 See the [Action guide](docs/github-action.md) and [copy-paste workflow example](examples/changeguard-workflow.yml).
 
-For convenience, workflows may use the movable minor release alias `efegokdemir/shopify-app-changeguard@v0.5`. For high-assurance supply-chain usage, resolve the current patch release to a full commit SHA; minor aliases are not immutable.
+For convenience, workflows may use the movable minor release alias `RexCode-Digital/shopify-app-changeguard@v0.5`. For high-assurance supply-chain usage, resolve the current patch release to a full commit SHA; minor aliases are not immutable.
 
 ### Action inputs
 
@@ -221,7 +221,7 @@ A rule or semantic change should include:
 5. ordering/set-behaviour coverage where relevant
 6. redaction coverage for any sensitive values
 
-Start with [CONTRIBUTING.md](CONTRIBUTING.md) or browse the [open issues](https://github.com/efegokdemir/shopify-app-changeguard/issues).
+Start with [CONTRIBUTING.md](CONTRIBUTING.md) or browse the [open issues](https://github.com/RexCode-Digital/shopify-app-changeguard/issues).
 
 ## Roadmap
 
@@ -238,7 +238,7 @@ MIT — see [LICENSE](LICENSE).
 The Action example pins the reviewed v0.5.1 release commit. Verify the release reference with:
 
 ```bash
-gh api repos/efegokdemir/shopify-app-changeguard/git/ref/tags/v0.5.1 --jq .object.sha
+gh api repos/RexCode-Digital/shopify-app-changeguard/git/ref/tags/v0.5.1 --jq .object.sha
 ```
 
 Published patch tags are retained; existing minor aliases are movable. A reviewed full commit SHA is the immutable execution reference.
