@@ -2,4 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: Report a security vulnerability privately
     url: https://github.com/RexCode-Digital/shopify-app-changeguard/security/advisories/new
-    about: Do not disclose secrets or suspected vulnerabilities in a public issue.
+    about: Do not report suspected vulnerabilities or include secrets in a public issue.
+  - name: Support and usage questions
+    url: https://github.com/RexCode-Digital/shopify-app-changeguard/blob/main/SUPPORT.md
+    about: Review the support guide before opening a usage question.
