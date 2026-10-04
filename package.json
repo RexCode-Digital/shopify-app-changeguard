@@ -34,11 +34,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/efegokdemir/shopify-app-changeguard.git"
+    "url": "git+https://github.com/RexCode-Digital/shopify-app-changeguard.git"
   },
-  "homepage": "https://github.com/efegokdemir/shopify-app-changeguard#readme",
+  "homepage": "https://github.com/RexCode-Digital/shopify-app-changeguard#readme",
   "bugs": {
-    "url": "https://github.com/efegokdemir/shopify-app-changeguard/issues"
+    "url": "https://github.com/RexCode-Digital/shopify-app-changeguard/issues"
   },
   "keywords": [
     "shopify",
