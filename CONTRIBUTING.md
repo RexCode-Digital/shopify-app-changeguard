@@ -15,7 +15,7 @@ The project deliberately prefers **small, deterministic, privacy-safe review sem
 - GitHub Action and CLI reliability
 - Documentation and reproducible examples
 
-Browse the [open issues](https://github.com/efegokdemir/shopify-app-changeguard/issues) for current work.
+Browse the [open issues](https://github.com/RexCode-Digital/shopify-app-changeguard/issues) for current work.
 
 ## Development
 
@@ -80,6 +80,6 @@ Current coverage gates protect comparison and redaction paths. Do not weaken the
 
 ## Security
 
-Use [GitHub private vulnerability reporting](https://github.com/efegokdemir/shopify-app-changeguard/security/advisories/new) for suspected vulnerabilities. Do not disclose security-sensitive details in public issues.
+Use [GitHub private vulnerability reporting](https://github.com/RexCode-Digital/shopify-app-changeguard/security/advisories/new) for suspected vulnerabilities. Do not disclose security-sensitive details in public issues.
 
 ChangeGuard does not certify Shopify compliance, security, or deployment safety.
