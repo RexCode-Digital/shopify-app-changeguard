@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.2
+
+- Refine npm search metadata and align the Action listing description with configuration review in CI.
+- Include the current third-party notice inventory in the published package.
+
 ## 0.5.1
 
 - Fail closed on incomplete reviews under both review and unreviewed policies.

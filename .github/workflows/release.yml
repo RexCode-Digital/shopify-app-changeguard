@@ -69,4 +69,5 @@ jobs:
           set -euo pipefail
           alias="${GITHUB_REF_NAME%.*}"
           git tag -f "$alias" "$GITHUB_SHA"
+          git remote set-url origin "https://github.com/${GITHUB_REPOSITORY}.git"
           git push --force origin "refs/tags/$alias"
