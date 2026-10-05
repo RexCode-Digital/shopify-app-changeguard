@@ -52,6 +52,8 @@
     "provenance": true
   },
   "files": [
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
     "dist/cli.js",
     "dist/client-id.js",
     "dist/core.js",
