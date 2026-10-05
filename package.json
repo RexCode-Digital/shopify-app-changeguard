@@ -1,7 +1,7 @@
 {
   "name": "shopify-app-changeguard",
-  "version": "0.5.1",
-  "description": "Unofficial offline semantic change review for Shopify app configuration files",
+  "version": "0.5.2",
+  "description": "Offline semantic review of Shopify app configuration changes, with risk findings for CI and pull requests.",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -42,11 +42,13 @@
   },
   "keywords": [
     "shopify",
-    "github-action",
+    "shopify-app",
     "configuration",
-    "security",
-    "toml",
-    "ci"
+    "config-diff",
+    "github-actions",
+    "ci",
+    "code-review",
+    "developer-tools"
   ],
   "publishConfig": {
     "provenance": true
@@ -66,5 +68,5 @@
     "dist/events.js",
     "dist/generated-version.js"
   ],
-  "author": "Efe G\u00f6kdemir"
+  "author": "Efe Gökdemir"
 }

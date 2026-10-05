@@ -1,5 +1,5 @@
 name: ChangeGuard — Shopify App Config Review
-description: Review Shopify app configuration changes in pull requests before deployment.
+description: Review Shopify app configuration changes in pull requests with semantic risk findings.
 author: RexCode Digital Ltd (Efe Gökdemir)
 branding:
   icon: shield
