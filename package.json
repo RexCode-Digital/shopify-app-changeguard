@@ -11,7 +11,7 @@
   },
   "scripts": {
     "prebuild": "node scripts/write-version.mjs",
-    "build": "tsc -p tsconfig.json && ncc build dist/action.js -o dist/action --minify",
+    "build": "tsc -p tsconfig.json && ncc build dist/action.js -o dist/action --minify --license licenses.txt",
     "test": "npm run build && node --test",
     "check": "node dist/cli.js",
     "lint": "tsc -p tsconfig.json --noEmit",
