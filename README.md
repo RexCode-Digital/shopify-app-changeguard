@@ -240,7 +240,7 @@ MIT — see [LICENSE](LICENSE).
 The Action example pins the reviewed v0.5.2 release commit. Verify the release reference with:
 
 ```bash
-gh api repos/RexCode-Digital/shopify-app-changeguard/git/ref/tags/v0.5.2 --jq .object.sha
+git fetch --tags origin && git rev-parse 'v0.5.2^{commit}'
 ```
 
 Published patch tags are retained; existing minor aliases are movable. A reviewed full commit SHA is the immutable execution reference.
