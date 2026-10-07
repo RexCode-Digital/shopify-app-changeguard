@@ -4,7 +4,7 @@ import { compareConfigs } from '../dist/core.js';
 
 const cfg = (events) => ({
   access_scopes: { scopes: 'read_products' },
-  ...(events === undefined ? {} : { events: { api_version: 'unstable', ...events } }),
+  ...(events === undefined ? {} : { events: { api_version: '2026-10', ...events } }),
 });
 const subscription = (handle, overrides = {}) => ({
   handle,
@@ -16,7 +16,7 @@ const subscription = (handle, overrides = {}) => ({
 });
 
 test('reports Events API version changes without printing values', () => {
-  const before = cfg({ api_version: 'unstable', subscription: [] });
+  const before = cfg({ api_version: '2026-10', subscription: [] });
   const after = cfg({ api_version: '2026-07', subscription: [] });
   const findings = compareConfigs(before, after);
   assert.deepEqual(findings.map((finding) => finding.ruleId), ['EVENTS_API_VERSION_CHANGED']);
@@ -25,8 +25,8 @@ test('reports Events API version changes without printing values', () => {
 
 test('reports Events subscription additions and removals without leaking values', () => {
   const secret = 'SYNTHETIC_EVENTS_SECRET_6F2';
-  const before = cfg({ api_version: 'unstable', subscription: [] });
-  const after = cfg({ api_version: 'unstable', subscription: [subscription(secret, { uri: `https://events.test/${secret}` })] });
+  const before = cfg({ api_version: '2026-10', subscription: [] });
+  const after = cfg({ api_version: '2026-10', subscription: [subscription(secret, { uri: `https://events.test/${secret}` })] });
   const findings = compareConfigs(before, after);
   assert.match(findings[0].summary, /added: 1; removed: 0; modified: 0/);
   assert.doesNotMatch(JSON.stringify(findings), /SYNTHETIC_EVENTS_SECRET|events\.test/);
@@ -75,11 +75,11 @@ test('redacts every synthetic Events delivery detail in a modification', () => {
 });
 
 test('ignores subscription order and action/trigger order', () => {
-  const before = cfg({ api_version: 'unstable', subscription: [
+  const before = cfg({ api_version: '2026-10', subscription: [
     subscription('product-events', { actions: ['update', 'create'], triggers: ['product.title', 'product.status'] }),
     subscription('other-events', { actions: ['delete'], triggers: undefined }),
   ] });
-  const after = cfg({ api_version: 'unstable', subscription: [
+  const after = cfg({ api_version: '2026-10', subscription: [
     subscription('other-events', { actions: ['delete'], triggers: undefined }),
     subscription('product-events', { actions: ['create', 'update'], triggers: ['product.status', 'product.title'] }),
   ] });
@@ -97,7 +97,7 @@ test('rejects malformed Events structures on either side', () => {
 
 test('combines Events findings with other supported rules without exposing secrets', () => {
   const before = {
-    ...cfg({ api_version: 'unstable', subscription: [subscription('old-events', { uri: '/old-secret' })] }),
+    ...cfg({ api_version: '2026-10', subscription: [subscription('old-events', { uri: '/old-secret' })] }),
     application_url: 'https://old.test/?token=OLD_SECRET',
   };
   const after = {

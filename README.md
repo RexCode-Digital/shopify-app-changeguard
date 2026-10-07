@@ -83,7 +83,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: RexCode-Digital/shopify-app-changeguard@1aa53118ea9d8c47d2d362cb33acd18156624914 # v0.5.1
+      - uses: RexCode-Digital/shopify-app-changeguard@67ef54c622788e11b33caab7d9da51ce07294512 # v0.5.2
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -124,7 +124,7 @@ The bundled Action runs on GitHub's `node24` JavaScript Action runtime. Consumer
 | App proxy, POS, preferences | Proxy enablement/destination/route, `pos.embedded`, and preferences URL changes, without printing URLs |
 | Project discovery/build | Extension/web directory sets and automatic development URL update policy |
 | Webhooks | API version and subscription route/delivery changes, without printing destinations, topics, filters, or field names |
-| Events | Developer-preview API version and subscription changes, without printing handles, destinations, topics, triggers, queries, or filters |
+| Events | API version and subscription changes, without printing handles, destinations, topics, triggers, queries, or filters |
 | Config lifecycle | Added, removed, or renamed named `shopify.app*.toml` files |
 
 Supported semantics follow the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration).
@@ -237,10 +237,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Immutable SHA usage
 
-The Action example pins the reviewed v0.5.1 release commit. Verify the release reference with:
+The Action example pins the reviewed v0.5.2 release commit. Verify the release reference with:
 
 ```bash
-gh api repos/RexCode-Digital/shopify-app-changeguard/git/ref/tags/v0.5.1 --jq .object.sha
+gh api repos/RexCode-Digital/shopify-app-changeguard/git/ref/tags/v0.5.2 --jq .object.sha
 ```
 
 Published patch tags are retained; existing minor aliases are movable. A reviewed full commit SHA is the immutable execution reference.
