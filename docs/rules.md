@@ -36,11 +36,11 @@ The same category-based heuristic is used for all rules so results remain stable
 | `AUTOMATIC_DEV_URLS_CHANGED` | `build.automatically_update_urls_on_dev` changes | Review local tunnel and callback behaviour |
 | `WEBHOOK_API_VERSION_CHANGED` | Webhook API version changes | Review payload compatibility and rollout timing |
 | `WEBHOOK_SUBSCRIPTIONS_CHANGED` | Webhook topics, destinations, filters, or fields change | Review delivery coverage, endpoint routing, and data exposure |
-| `EVENTS_API_VERSION_CHANGED` | `[events].api_version` is added, removed, or changed | Review developer-preview/runtime compatibility |
+| `EVENTS_API_VERSION_CHANGED` | `[events].api_version` is added, removed, or changed | Review Events API compatibility and deployment timing |
 | `EVENTS_SUBSCRIPTIONS_CHANGED` | An Events subscription is added, removed, or changed | Review topic, actions, triggers, destination, and query settings |
 | `CONFIG_ADDED` / `CONFIG_REMOVED` / `CONFIG_RENAMED` | A named Shopify app configuration lifecycle changes | Review environment selection and deployment workflows |
 
-The rule semantics are grounded in [Shopify app configuration](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), [access scope management](https://shopify.dev/docs/apps/build/authentication-authorization/manage-access-scopes), and [Events subscriptions](https://shopify.dev/docs/apps/build/events/subscribe). Events is currently a developer preview on Shopify's `unstable` API version; this check identifies semantic configuration changes but does not validate whether Shopify accepts a topic, trigger, query, or URI.
+The rule semantics are grounded in [Shopify app configuration](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration), [access scope management](https://shopify.dev/docs/apps/build/authentication-authorization/manage-access-scopes), and [Events subscriptions](https://shopify.dev/docs/apps/build/events/subscribe). Shopify Events became generally available with API version `2026-10`. This check identifies semantic configuration changes but does not validate whether Shopify accepts a topic, trigger, query, or URI.
 
 Events subscription handles identify entries for comparison. Actions and triggers are treated as unordered sets. Destinations, handles, topics, triggers, GraphQL queries, and filters are never included in findings.
 

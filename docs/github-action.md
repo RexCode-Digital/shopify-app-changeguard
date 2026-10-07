@@ -20,7 +20,7 @@ with the following contents:
               fetch-depth: 0
               persist-credentials: false
 
-          - uses: RexCode-Digital/shopify-app-changeguard@1aa53118ea9d8c47d2d362cb33acd18156624914 # v0.5.1
+          - uses: RexCode-Digital/shopify-app-changeguard@67ef54c622788e11b33caab7d9da51ce07294512 # v0.5.2
             with:
               base_sha: ${{ github.event.pull_request.base.sha }}
               head_sha: ${{ github.event.pull_request.head.sha }}

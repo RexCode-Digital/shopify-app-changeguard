@@ -30,7 +30,7 @@ topics = ["app/uninstalled"]
 uri = "/webhooks"
 
 [events]
-api_version = "unstable"
+api_version = "2026-10"
 
 [[events.subscription]]
 handle = "product-updates"

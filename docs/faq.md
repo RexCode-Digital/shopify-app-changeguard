@@ -14,4 +14,4 @@ No. The CLI and Action are offline and read-only.
 
 ### How are Events configuration changes reported?
 
-ChangeGuard reports changes to the documented `[events].api_version` and `[[events.subscription]]` structure. It redacts handles, destinations, topics, triggers, queries, and filters from findings. Shopify Events remains a developer preview on the `unstable` API version, so a finding requests review; it does not validate Shopify deployment acceptance.
+ChangeGuard reports changes to the documented `[events].api_version` and `[[events.subscription]]` structure. It redacts handles, destinations, topics, triggers, queries, and filters from findings. Shopify Events is generally available with API version `2026-10`. A finding requests review; it does not validate Shopify deployment acceptance.
