@@ -94,7 +94,7 @@ For security-sensitive workflows, pin third-party Actions to a reviewed immutabl
 
 See the [Action guide](docs/github-action.md) and [copy-paste workflow example](examples/changeguard-workflow.yml).
 
-For convenience, workflows may use the movable minor release alias `RexCode-Digital/shopify-app-changeguard@v0.5`. For high-assurance supply-chain usage, resolve the current patch release to a full commit SHA; minor aliases are not immutable.
+Use an exact patch release tag or a full commit SHA. The historical `v0.5` alias is retained but is no longer moved by the release workflow.
 
 ### Action inputs
 
@@ -254,4 +254,4 @@ The Action example pins the reviewed v0.5.2 release commit. Verify the release r
 git fetch --tags origin && git rev-parse 'v0.5.2^{commit}'
 ```
 
-Published patch tags are retained; existing minor aliases are movable. A reviewed full commit SHA is the immutable execution reference.
+Published patch tags are retained. The release workflow does not move existing tags; a reviewed full commit SHA is the immutable execution reference.
