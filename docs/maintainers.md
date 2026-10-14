@@ -1,5 +1,9 @@
 # Maintainer runbook
 
+## Review and merge policy
+
+The projects use pull requests with a solo maintainer. Review the full diff locally and merge through the normal GitHub flow only after the required automated checks pass. CODEOWNERS entries route review requests; they do not require a separate human approval.
+
 1. Check issues and open pull requests for duplicate work before starting a substantial change.
 2. Run `npm ci --ignore-scripts`, `npm test`, `npm run lint`, `npm audit`, `npm run package:check`, and `npm run action:check`.
 3. Review every changed line, generated Action distribution, redaction path, and workflow permission.
