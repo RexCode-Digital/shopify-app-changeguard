@@ -31,7 +31,7 @@ function fixture(config, check) {
   }
 }
 
-function run(dir, base, head, policy) {
+function run(dir, base, head, policy, risk = 'none') {
   const output = join(dir, 'output.txt');
   const summary = join(dir, 'summary.md');
   writeFileSync(output, '');
@@ -47,6 +47,7 @@ function run(dir, base, head, policy) {
       INPUT_BASE_SHA: base,
       INPUT_HEAD_SHA: head,
       INPUT_FAIL_ON: policy,
+      INPUT_FAIL_ON_RISK: risk,
     },
   });
 }
@@ -74,6 +75,30 @@ test('bundled Action fail_on review fails on findings', () => {
     const result = run(dir, base, head, 'review');
     assert.equal(result.status, 1);
     assert.match(result.stdout + result.stderr, /Review findings detected/);
+  });
+});
+
+test('bundled Action applies risk threshold independently and emits file annotations', () => {
+  fixture(newConfig, ({ dir, base, head }) => {
+    const informational = run(dir, base, head, 'never', 'none');
+    assert.equal(informational.status, 0, `${informational.stdout}\n${informational.stderr}`);
+    const result = run(dir, base, head, 'never', 'high');
+    assert.equal(result.status, 1, `${result.stdout}\n${result.stderr}`);
+    const outputs = readFileSync(join(dir, 'output.txt'), 'utf8');
+    assert.match(outputs, /risk_threshold_exceeded<<ghadelimiter_[^\n]+\ntrue/);
+    assert.match(result.stdout + result.stderr, /::warning [^\n]*title=[^\n]*file=shopify\.app\.toml::/);
+    assert.doesNotMatch(result.stdout + result.stderr, /::warning[^\n]*line=/);
+  });
+});
+
+test('Action annotations escape newlines from untrusted TOML-derived findings', () => {
+  fixture('[access_scopes]\nscopes = "read_orders,malicious\\n::error::INJECTED"\n', ({ dir, base, head }) => {
+    const result = run(dir, base, head, 'never');
+    assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+    const output = result.stdout + result.stderr;
+    assert.match(output, /::warning [^\n]*file=shopify\.app\.toml::/);
+    assert.doesNotMatch(output, /\n::error::INJECTED/);
+    assert.match(output, /malicious%0A::error::INJECTED/);
   });
 });
 

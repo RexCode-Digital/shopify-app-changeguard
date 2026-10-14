@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Report per-subscription Events change categories while ignoring equivalent query and filter formatting.
+- Add Markdown reports, an optional risk threshold for CLI and Action CI failures, and file-level Action annotations.
+- Include the new CLI modules in npm packages and document multi-configuration reporting without guessing environment names.
+
 ## 0.5.2
 
 - Refine npm search metadata and align the Action listing description with configuration review in CI.

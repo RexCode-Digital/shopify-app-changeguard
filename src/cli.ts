@@ -5,6 +5,8 @@ import { compareConfigs } from './core.js';
 import { readConfigAtRef, resolveCommitRef } from './git-refs.js';
 import { reviewGitRange } from './pr-review.js';
 import { CHANGEGUARD_VERSION } from './generated-version.js';
+import { renderMarkdown } from './markdown.js';
+import { matchesRiskThreshold, validateRiskThreshold, type RiskThreshold } from './risk-policy.js';
 
 const VERSION = CHANGEGUARD_VERSION;
 
@@ -12,13 +14,15 @@ function usage(exitCode = 2): never {
   const output = `ChangeGuard ${VERSION}
 
   Usage:
-  changeguard --before FILE --after FILE [--json] [--fail-on LEVEL]
-  changeguard --base-ref REF --head-ref REF --file PATH [--json] [--fail-on LEVEL]
-  changeguard --base-ref REF --head-ref REF --all-configs [--json] [--fail-on LEVEL]
+  changeguard --before FILE --after FILE [--format human|json|markdown] [--fail-on LEVEL] [--fail-on-risk LEVEL]
+  changeguard --base-ref REF --head-ref REF --file PATH [--format human|json|markdown] [--fail-on LEVEL] [--fail-on-risk LEVEL]
+  changeguard --base-ref REF --head-ref REF --all-configs [--format human|json|markdown] [--fail-on LEVEL] [--fail-on-risk LEVEL]
 
 Options:
-  --json              Emit a machine-readable report.
+  --json              Emit a machine-readable report (alias for --format json).
+  --format FORMAT     Emit human, json, or markdown output.
   --fail-on LEVEL     never (default), review, or unreviewed.
+  --fail-on-risk LEVEL Fail when any finding reaches none, low, medium, or high risk.
   --all-configs       Review every changed shopify.app*.toml file in a Git range.
   --help              Show this help.
   --version           Show the version.
@@ -51,11 +55,13 @@ async function main(): Promise<void> {
   let before: string | undefined;
   let after: string | undefined;
   let json = false;
+  let format: 'human' | 'json' | 'markdown' | undefined;
   let baseRef: string | undefined;
   let headRef: string | undefined;
   let file: string | undefined;
   let allConfigs = false;
   let failOn: 'never' | 'review' | 'unreviewed' = 'never';
+  let failOnRisk: RiskThreshold = 'none';
   const valueFor = (name: string, index: number): string => {
     const value = args[index + 1];
     if (!value || value.startsWith('--')) usage(2);
@@ -68,6 +74,11 @@ async function main(): Promise<void> {
       console.log(VERSION);
       return;
     } else if (arg === '--json') json = true;
+    else if (arg === '--format') {
+      const value = valueFor(arg, i++);
+      if (value !== 'human' && value !== 'json' && value !== 'markdown') usage(2);
+      format = value;
+    }
     else if (arg === '--before') before = valueFor(arg, i++);
     else if (arg === '--after') after = valueFor(arg, i++);
     else if (arg === '--base-ref') baseRef = valueFor(arg, i++);
@@ -79,12 +90,19 @@ async function main(): Promise<void> {
       if (value !== 'never' && value !== 'review' && value !== 'unreviewed') usage(2);
       failOn = value;
     }
+    else if (arg === '--fail-on-risk') {
+      const value = valueFor(arg, i++);
+      try { validateRiskThreshold(value); } catch { usage(2); }
+      failOnRisk = value;
+    }
     else usage();
   }
   const fileMode = before !== undefined || after !== undefined;
   const gitMode = baseRef !== undefined || headRef !== undefined || file !== undefined;
 
   if (fileMode === gitMode) usage();
+  if (json && format !== undefined && format !== 'json') usage(2);
+  format = json ? 'json' : format ?? 'human';
 
   let oldConfig: Record<string, unknown>;
   let newConfig: Record<string, unknown>;
@@ -93,7 +111,8 @@ async function main(): Promise<void> {
     if (!baseRef || !headRef || (file === undefined && !allConfigs) || (file !== undefined && allConfigs)) usage();
     if (allConfigs) {
       const report = reviewGitRange(resolveCommitRef(baseRef), resolveCommitRef(headRef));
-      if (json) console.log(JSON.stringify(report, null, 2));
+      if (format === 'json') console.log(JSON.stringify(report, null, 2));
+      else if (format === 'markdown') console.log(renderMarkdown(report));
       else {
         console.log(`ChangeGuard v${VERSION}`);
         console.log(report.note);
@@ -102,6 +121,7 @@ async function main(): Promise<void> {
         if (report.unreviewed.length) console.log(`${report.unreviewed.length} configuration file(s) could not be reviewed.`);
       }
       if (failOn !== 'never' && report.unreviewed.length > 0) process.exitCode = 2;
+      else if (matchesRiskThreshold(report.files.flatMap((item) => item.findings), failOnRisk)) process.exitCode = 1;
       else if (failOn === 'review' && report.files.some((item) => item.findings.length > 0)) process.exitCode = 1;
       return;
     }
@@ -116,7 +136,9 @@ async function main(): Promise<void> {
   }
   const findings = compareConfigs(oldConfig, newConfig);
   const note = 'Only documented semantic changes in supported Shopify app configuration fields are examined; Shopify CLI remains responsible for schema validation and unsupported fields are not checked.';
-  if (json) console.log(JSON.stringify({ schemaVersion: 1, note, findings }, null, 2));
+  const report = { schemaVersion: 1, note, findings };
+  if (format === 'json') console.log(JSON.stringify(report, null, 2));
+  else if (format === 'markdown') console.log(renderMarkdown(report));
   else {
     console.log(`ChangeGuard v${VERSION}`);
     console.log(note);
@@ -124,7 +146,7 @@ async function main(): Promise<void> {
     for (const finding of findings) console.log(`[REVIEW] ${finding.ruleId}: ${finding.summary}`);
     console.log(`${findings.length} finding(s).`);
   }
-  if (failOn === 'review' && findings.length > 0) process.exitCode = 1;
+  if (matchesRiskThreshold(findings, failOnRisk) || failOn === 'review' && findings.length > 0) process.exitCode = 1;
 }
 
 main().catch((err: unknown) => {

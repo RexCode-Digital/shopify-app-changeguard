@@ -1,5 +1,9 @@
 # Maintainer runbook
 
+## Review and merge policy
+
+The projects use pull requests with a solo maintainer. Review the full diff locally and merge through the normal GitHub flow only after the required automated checks pass. CODEOWNERS entries route review requests; they do not require a separate human approval.
+
 1. Check issues and open pull requests for duplicate work before starting a substantial change.
 2. Run `npm ci --ignore-scripts`, `npm test`, `npm run lint`, `npm audit`, `npm run package:check`, and `npm run action:check`.
 3. Review every changed line, generated Action distribution, redaction path, and workflow permission.
@@ -16,5 +20,5 @@
    This one-off publication may require interactive npm authentication and 2FA. It must use the `bootstrap` dist-tag, never `latest`, and the version in the repository must remain unchanged. Removing `publishConfig.provenance` is disposable-copy-only because local npm is not a GitHub Actions OIDC provider; the real release keeps that setting and uses GitHub OIDC provenance.
 
    Confirm that the package exists on npm and that `latest` was not changed. Then configure the package's Trusted Publisher with GitHub Actions: user/organization `RexCode-Digital`, repository `shopify-app-changeguard`, workflow filename `release.yml`, blank environment, and direct `npm publish` allowed. Verify that `package.json.repository.url` exactly matches the GitHub repository before creating the stable release tag. After the repository transfer, verify the npm Trusted Publisher is configured for the `RexCode-Digital` organization, this repository, and `release.yml`. Before the next justified release, verify npm Trusted Publisher configuration and canonical package metadata together. Metadata-only maintenance does not require a publication.
-6. For the Action, regenerate `dist/action`, verify the source/distribution check, and update a major tag only after a real stable 1.x release.
+6. For the Action, regenerate `dist/action` and verify the source/distribution check. Create only new versioned release tags; never move an existing tag.
 7. Roll back by moving consumers to a previously reviewed full commit SHA and, if needed, deprecating the affected npm version. Never delete evidence or rewrite released tags.

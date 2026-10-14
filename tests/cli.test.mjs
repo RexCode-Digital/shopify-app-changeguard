@@ -44,6 +44,8 @@ test('CLI exposes help and version', () => {
   const help = run(['--help']);
   assert.equal(help.status, 0);
   assert.match(help.stdout, /--fail-on LEVEL/);
+  assert.match(help.stdout, /--fail-on-risk LEVEL/);
+  assert.match(help.stdout, /human, json, or markdown/);
   const version = run(['--version']);
   assert.equal(version.status, 0);
   assert.equal(version.stdout.trim(), packageJson.version);
@@ -64,6 +66,24 @@ test('CLI can fail on informational findings', () => {
   ]);
   assert.equal(result.status, 1);
   assert.match(result.stdout, /finding\(s\)/);
+});
+
+test('CLI Markdown includes risk rationale, suggested review action, and evidence links', () => {
+  const result = run(['--before', before, '--after', after, '--format', 'markdown']);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /^# ChangeGuard configuration review/m);
+  assert.match(result.stdout, /Risk rationale:/);
+  assert.match(result.stdout, /Suggested action:/);
+  assert.match(result.stdout, /https:\/\/shopify\.dev\//);
+});
+
+test('CLI risk threshold is independent of fail_on and rejects unknown values', () => {
+  const passing = run(['--before', before, '--after', after, '--fail-on', 'never', '--fail-on-risk', 'none']);
+  assert.equal(passing.status, 0, passing.stderr);
+  const failing = run(['--before', before, '--after', after, '--fail-on', 'never', '--fail-on-risk', 'high']);
+  assert.equal(failing.status, 1, failing.stderr);
+  assert.match(failing.stdout, /finding\(s\)/);
+  assert.equal(run(['--before', before, '--after', after, '--fail-on-risk', 'critical']).status, 2);
 });
 
 test('CLI rejects malformed TOML', () => {
