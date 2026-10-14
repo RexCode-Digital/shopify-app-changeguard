@@ -44,6 +44,8 @@ either policy can fail the job. `fail_on: never` retains its existing meaning;
 an incomplete result is exposed as `outcome: incomplete` even when the job is
 allowed to continue.
 
+The example above pins v0.5.2. That release does not support `fail_on_risk` or `risk_threshold_exceeded`; both are part of the unreleased changes here.
+
 Review outcomes:
 
 - No supported-field changes detected: the check succeeds.

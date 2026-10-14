@@ -56,7 +56,7 @@ jobs:
           persist-credentials: false
       - uses: RexCode-Digital/shopify-app-review-guard@14aa6c92d68c3f52ea06e8bb608328ce19f998d7 # v0.1.5
         with:
-          format: markdown
+          format: human
           fail-on: high
 ```
 

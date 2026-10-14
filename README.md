@@ -111,6 +111,8 @@ For convenience, workflows may use the movable minor release alias `RexCode-Digi
 
 The optional `fail_on_risk` policy is independent of `fail_on`: either policy can fail the job. `none` disables risk-based failure. The existing `fail_on` default and behaviour are unchanged; when it is `never`, an incomplete result remains visible as `outcome: incomplete` and is not represented as a complete review. Findings produce file-level GitHub warning annotations when a changed configuration file is known; no source line is inferred.
 
+The example above pins v0.5.2, which does not include `fail_on_risk` or `risk_threshold_exceeded`. These Action additions, along with the Markdown and risk-threshold CLI options below, are part of the unreleased changes here and are not available from npm v0.5.2.
+
 The bundled Action runs on GitHub's `node24` JavaScript Action runtime. Consumer jobs do not install project dependencies or compile ChangeGuard.
 
 ## What it reviews
