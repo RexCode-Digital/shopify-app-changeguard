@@ -28,9 +28,9 @@ test('reports Events subscription additions and removals without leaking values'
   const before = cfg({ api_version: '2026-10', subscription: [] });
   const after = cfg({ api_version: '2026-10', subscription: [subscription(secret, { uri: `https://events.test/${secret}` })] });
   const findings = compareConfigs(before, after);
-  assert.match(findings[0].summary, /added: 1; removed: 0; modified: 0/);
+  assert.match(findings[0].summary, /created: 1; removed: 0; modified: 0/);
   assert.doesNotMatch(JSON.stringify(findings), /SYNTHETIC_EVENTS_SECRET|events\.test/);
-  assert.match(compareConfigs(after, before)[0].summary, /added: 0; removed: 1; modified: 0/);
+  assert.match(compareConfigs(after, before)[0].summary, /created: 0; removed: 1; modified: 0/);
 });
 
 test('reports subscription modifications without leaking destinations or queries', () => {
@@ -38,8 +38,34 @@ test('reports subscription modifications without leaking destinations or queries
   const after = cfg({ subscription: [subscription('product-events', { actions: ['create'], uri: 'https://new-secret.test/events', query_filter: 'status:ACTIVE' })] });
   const findings = compareConfigs(before, after);
   assert.deepEqual(findings.map((finding) => finding.ruleId), ['EVENTS_SUBSCRIPTIONS_CHANGED']);
-  assert.match(findings[0].summary, /added: 0; removed: 0; modified: 1/);
+  assert.match(findings[0].summary, /created: 0; removed: 0; modified: 1/);
+  assert.match(findings[0].summary, /modified fields: destination 1, actions 1, query 1, query filter 1/);
   assert.doesNotMatch(JSON.stringify(findings), /old_secret|new-secret|status:ACTIVE/);
+});
+
+test('reports modified subscription categories without double-counting and ignores query formatting', () => {
+  const before = cfg({ subscription: [subscription('product-events', {
+    query: '# comment\nquery Products { product { id title } }',
+    query_filter: 'status:ACTIVE   AND title:"two  words"',
+  })] });
+  const equivalent = cfg({ subscription: [subscription('product-events', {
+    query: 'query Products{product{id,title}}',
+    query_filter: 'status:ACTIVE AND title:"two  words"',
+  })] });
+  assert.deepEqual(compareConfigs(before, equivalent), []);
+
+  const modified = cfg({ subscription: [subscription('product-events', {
+    topic: 'ProductVariant',
+    actions: ['delete'],
+    triggers: ['product.status'],
+    uri: '/events/changed',
+    query: 'query Products { product { title id } }',
+    query_filter: 'status:ACTIVE AND title:"two words"',
+  })] });
+  const findings = compareConfigs(before, modified);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].summary, /created: 0; removed: 0; modified: 1/);
+  assert.match(findings[0].summary, /topic 1, destination 1, actions 1, triggers 1, query 1, query filter 1/);
 });
 
 test('redacts every synthetic Events delivery detail in a modification', () => {
@@ -70,7 +96,7 @@ test('redacts every synthetic Events delivery detail in a modification', () => {
   const output = JSON.stringify(findings);
 
   assert.deepEqual(findings.map(({ ruleId }) => ruleId), ['EVENTS_SUBSCRIPTIONS_CHANGED']);
-  assert.match(findings[0].summary, /added: 1; removed: 1; modified: 0/);
+  assert.match(findings[0].summary, /created: 1; removed: 1; modified: 0/);
   assert.doesNotMatch(output, /SYNTHETIC_EVENTS|SYNTHETIC_URI|SYNTHETIC_QUERY|SYNTHETIC_FILTER|old-events|new-events/);
 });
 

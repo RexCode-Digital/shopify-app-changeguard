@@ -1,6 +1,7 @@
 import * as core from '@actions/core';
 import { renderSummary } from './summary.js';
 import { reviewPullRequest } from './pr-review.js';
+import { matchesRiskThreshold, validateRiskThreshold } from './risk-policy.js';
 
 async function main(): Promise<void> {
   const report = reviewPullRequest(
@@ -12,6 +13,8 @@ async function main(): Promise<void> {
   if (!['never', 'review', 'unreviewed'].includes(policy)) {
     throw new Error('fail_on must be one of: never, review, unreviewed');
   }
+  const failOnRisk = core.getInput('fail_on_risk') || 'none';
+  validateRiskThreshold(failOnRisk);
   const outcome = report.unreviewed.length > 0
     ? 'incomplete' : allFindings.length > 0 ? 'findings' : 'clean';
   // Do not print untrusted TOML-derived text to stdout: GitHub interprets
@@ -29,12 +32,17 @@ async function main(): Promise<void> {
     return riskRank[risk] > (highest === 'none' ? 0 : riskRank[highest]) ? risk : highest;
   }, 'none');
   core.setOutput('highest_risk', highestRisk);
+  core.setOutput('risk_threshold_exceeded', String(matchesRiskThreshold(allFindings, failOnRisk)));
   core.setOutput('report', JSON.stringify(report));
   await core.summary.addRaw(renderSummary(report)).write();
+  for (const reviewed of report.files) for (const finding of reviewed.findings) {
+    core.warning(`${finding.ruleId}: ${finding.summary}`, { file: reviewed.path, title: `${finding.ruleId} (${finding.riskLevel ?? 'medium'} risk)` });
+  }
   if (policy !== 'never' && report.unreviewed.length > 0) {
     throw new Error('Review incomplete: one or more configurations could not be analyzed.');
   }
   if (policy === 'review' && allFindings.length > 0) throw new Error('Review findings detected.');
+  if (matchesRiskThreshold(allFindings, failOnRisk)) throw new Error(`Review findings meet the ${failOnRisk} risk threshold.`);
 }
 
 try {

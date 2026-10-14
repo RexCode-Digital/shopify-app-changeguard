@@ -103,10 +103,13 @@ For convenience, workflows may use the movable minor release alias `RexCode-Digi
 | `base_sha` | Pull request base commit SHA |
 | `head_sha` | Pull request head commit SHA |
 | `fail_on` | Failure policy: `never`, `review`, or `unreviewed` |
+| `fail_on_risk` | Optional independent risk threshold: `none` (default), `low`, `medium`, or `high` |
 
 ### Action outputs
 
-`outcome`, `finding_count`, `highest_severity`, `highest_risk`, `report`, `reviewed_file_count`, `unreviewed_count`, and `rule_ids`.
+`outcome`, `finding_count`, `highest_severity`, `highest_risk`, `risk_threshold_exceeded`, `report`, `reviewed_file_count`, `unreviewed_count`, and `rule_ids`.
+
+The optional `fail_on_risk` policy is independent of `fail_on`: either policy can fail the job. `none` disables risk-based failure. The existing `fail_on` default and behaviour are unchanged; when it is `never`, an incomplete result remains visible as `outcome: incomplete` and is not represented as a complete review. Findings produce file-level GitHub warning annotations when a changed configuration file is known; no source line is inferred.
 
 The bundled Action runs on GitHub's `node24` JavaScript Action runtime. Consumer jobs do not install project dependencies or compile ChangeGuard.
 
@@ -147,8 +150,9 @@ It is not a claim that a configuration is secure, valid, or approved by Shopify.
 
 ```text
 changeguard --before FILE --after FILE [--json]
-changeguard --base-ref REF --head-ref REF --file shopify.app.toml [--fail-on ...]
-changeguard --base-ref REF --head-ref REF --all-configs [--json]
+changeguard --before FILE --after FILE [--format human|json|markdown] [--fail-on ...] [--fail-on-risk none|low|medium|high]
+changeguard --base-ref REF --head-ref REF --file shopify.app.toml [--format human|json|markdown] [--fail-on ...] [--fail-on-risk ...]
+changeguard --base-ref REF --head-ref REF --all-configs [--format human|json|markdown] [--fail-on ...] [--fail-on-risk ...]
 ```
 
 Examples:
@@ -165,9 +169,12 @@ npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --json
 
 # Fail CI when review findings exist
 npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --fail-on review
+
+# Write a Markdown report and fail only for high-risk findings
+npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --format markdown --fail-on-risk high
 ```
 
-`--fail-on never` is the default. `review` exits 1 when findings exist. Input errors exit 2. In Git-range mode, incomplete reviews exit 2 under `review` or `unreviewed`; `never` reports them without failing.
+`--fail-on never` and `--fail-on-risk none` are the defaults. `review` exits 1 when findings exist; a risk threshold exits 1 when a finding reaches that level. Input errors exit 2. In Git-range mode, incomplete reviews exit 2 under `review` or `unreviewed`; `never` reports them with an incomplete status without failing. Repository-wide reports group findings by configuration file and do not infer environment names from arbitrary filenames.
 
 See the [CLI reference](docs/cli.md).
 
@@ -209,6 +216,8 @@ Building or maintaining Shopify apps?
 - **[Shopify App Review Guard](https://github.com/RexCode-Digital/shopify-app-review-guard)** — Run deterministic preflight checks for Shopify App Store and production readiness.
 
 All four tools run offline and require no Shopify credentials.
+
+See the [coordinated workflow example](docs/ecosystem-workflow.md) to run all four published Actions in one pull-request workflow.
 
 ## Contributing
 

@@ -36,10 +36,13 @@ containing counts, rule IDs, documentation links, and an explicit review
 status. It keeps TOML-derived text out of raw workflow-command output and
 exposes the structured report through outputs: `outcome`, `finding_count`,
 `reviewed_file_count`, `unreviewed_count`, `rule_ids`, `highest_severity`, and
-`highest_risk`,
-and `report`. Set `fail_on`
-to `never`, `review`, or `unreviewed`; the default fails only when review
-is incomplete.
+`highest_risk`, `risk_threshold_exceeded`, and `report`. Set `fail_on` to
+`never`, `review`, or `unreviewed`; the default fails only when review is
+incomplete. The optional `fail_on_risk` input accepts `none`, `low`, `medium`,
+or `high` and defaults to `none`. It adds an independent failure condition, so
+either policy can fail the job. `fail_on: never` retains its existing meaning;
+an incomplete result is exposed as `outcome: incomplete` even when the job is
+allowed to continue.
 
 Review outcomes:
 
@@ -50,6 +53,10 @@ Review outcomes:
 The job summary does not print configuration values, file paths or finding
 descriptions. The `report` output contains structured finding details and
 should be treated as repository-sensitive automation data.
+
+Findings are also emitted as GitHub warning annotations tied to the changed
+configuration file when that path is known. Annotations do not include an
+invented source line or require write permissions.
 
 For fork pull requests, use the normal `pull_request` event and keep
 `contents: read`. Do not switch to `pull_request_target` merely to make

@@ -41,33 +41,26 @@ function readEvents(config) {
         if (!/^[A-Za-z0-9_-]{1,50}$/.test(handle)) {
             throw new Error('events.subscription.handle must be alphanumeric, _, or - and at most 50 characters');
         }
-        readString(item, 'topic', label);
+        const topic = readString(item, 'topic', label);
         const actions = readStringSet(item, 'actions', label);
         if (actions.some((action) => !['create', 'update', 'delete'].includes(action))) {
             throw new Error('events.subscription.actions must contain only create, update, or delete');
         }
-        readString(item, 'uri', label);
+        const destination = readString(item, 'uri', label);
         if (actions.includes('update')) {
             readStringSet(item, 'triggers', label);
         }
         else if (item.triggers !== undefined) {
             readStringSet(item, 'triggers', label);
         }
-        if (item.query !== undefined)
-            readString(item, 'query', label);
-        if (item.query_filter !== undefined)
-            readString(item, 'query_filter', label);
+        const query = item.query === undefined ? undefined : readString(item, 'query', label);
+        const filter = item.query_filter === undefined ? undefined : normalizeFilter(readString(item, 'query_filter', label));
         if (subscriptions.has(handle))
             throw new Error('Events subscription handles must be unique');
-        const fingerprint = JSON.stringify({
-            actions,
-            query: item.query,
-            query_filter: item.query_filter,
-            topic: item.topic,
-            triggers: item.triggers === undefined ? undefined : [...new Set(item.triggers.map((value) => value.trim()))].sort(),
-            uri: item.uri,
-        });
-        subscriptions.set(handle, { handle, fingerprint });
+        const normalizedQuery = query === undefined ? undefined : normalizeGraphQL(query);
+        const triggers = item.triggers === undefined ? [] : [...new Set(item.triggers.map((value) => value.trim()))].sort();
+        const values = { actions, query: normalizedQuery, filter, topic, triggers, destination };
+        subscriptions.set(handle, { handle, fingerprint: JSON.stringify(values), ...values });
     }
     return { version: version, subscriptions };
 }
@@ -83,26 +76,70 @@ export function compareEvents(before, after) {
             summary: 'Events API version changed; review preview/runtime compatibility',
         });
     }
-    let added = 0;
-    let removed = 0;
-    let modified = 0;
+    let created = 0, removed = 0, modified = 0;
+    const changes = { topic: 0, destination: 0, actions: 0, triggers: 0, query: 0, filter: 0 };
     for (const handle of new Set([...oldEvents.subscriptions.keys(), ...newEvents.subscriptions.keys()])) {
         const previous = oldEvents.subscriptions.get(handle);
         const next = newEvents.subscriptions.get(handle);
         if (!previous)
-            added++;
+            created++;
         else if (!next)
             removed++;
-        else if (previous.fingerprint !== next.fingerprint)
+        else if (previous.fingerprint !== next.fingerprint) {
             modified++;
+            for (const field of Object.keys(changes))
+                if (JSON.stringify(previous[field]) !== JSON.stringify(next[field]))
+                    changes[field]++;
+        }
     }
-    if (added || removed || modified) {
+    if (created || removed || modified) {
+        const detail = modified ? `; modified fields: ${Object.entries(changes).filter(([, count]) => count > 0).map(([field, count]) => `${field === 'destination' ? 'destination' : field === 'filter' ? 'query filter' : field} ${count}`).join(', ')}` : '';
         findings.push({
             ruleId: 'EVENTS_SUBSCRIPTIONS_CHANGED',
             severity: 'review',
             field: 'events.subscription',
-            summary: `Events subscriptions changed (added: ${added}; removed: ${removed}; modified: ${modified}); review topic, actions, triggers, destination and delivery query settings`,
+            summary: `Events subscriptions changed (created: ${created}; removed: ${removed}; modified: ${modified}${detail}); review the affected subscription configuration`,
         });
     }
     return findings;
+}
+function normalizeGraphQL(query) {
+    const tokens = [];
+    const tokenPattern = /#[^\r\n]*|"""[\s\S]*?"""|"(?:\\.|[^"\\])*"|[A-Za-z_][A-Za-z0-9_]*|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?|\.\.\.|[^\s,]/g;
+    for (const match of query.matchAll(tokenPattern)) {
+        if (match[0].startsWith('#'))
+            continue;
+        tokens.push(match[0]);
+    }
+    return tokens.length ? tokens.join(' ') : query;
+}
+function normalizeFilter(value) {
+    let result = '', quote = '', escaped = false, pendingSpace = false;
+    for (const character of value.trim()) {
+        if (quote) {
+            result += character;
+            if (escaped)
+                escaped = false;
+            else if (character === '\\')
+                escaped = true;
+            else if (character === quote)
+                quote = '';
+        }
+        else if (character === '"' || character === "'") {
+            if (pendingSpace && result)
+                result += ' ';
+            pendingSpace = false;
+            quote = character;
+            result += character;
+        }
+        else if (/\s/.test(character))
+            pendingSpace = true;
+        else {
+            if (pendingSpace && result)
+                result += ' ';
+            pendingSpace = false;
+            result += character;
+        }
+    }
+    return result;
 }

@@ -16,6 +16,10 @@ inputs:
     description: 'Failure policy: never, review, or unreviewed'
     required: false
     default: unreviewed
+  fail_on_risk:
+    description: 'Optional risk threshold: none, low, medium, or high'
+    required: false
+    default: none
 
 outputs:
   outcome:
@@ -26,6 +30,8 @@ outputs:
     description: Highest finding severity, or none
   highest_risk:
     description: Highest deterministic review risk, or none
+  risk_threshold_exceeded:
+    description: Whether any finding reaches fail_on_risk
   report:
     description: JSON review report
   reviewed_file_count:
