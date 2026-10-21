@@ -23,7 +23,7 @@ You retain copyright in your contributions. By submitting a contribution, you ag
 
 ## Development
 
-Requires Node.js 20 or newer. CI covers Node 20, 22, and 24.
+Requires Node.js 22 or newer. CI covers Node.js 22 and 24; the bundled GitHub Action uses the Node.js 24 runtime.
 
 ```bash
 npm ci --ignore-scripts

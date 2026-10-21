@@ -1,6 +1,7 @@
 const escape = (value) => String(value ?? '').replace(/[\\`*_{}\[\]()<>#+.!|]/g, '\\$&').replace(/[\r\n]+/g, ' ');
 function appendFinding(lines, finding) {
-    lines.push('', `### ${escape(finding.ruleId)} — ${escape(finding.riskLevel ?? 'medium')} risk`, '', escape(finding.summary), '', `Risk rationale: ${escape(finding.riskRationale ?? 'Review the operational impact of this configuration change.')}`, '', 'Suggested action: Review the affected setting and intended behaviour before deployment.', '', `Category: ${escape(finding.category ?? 'unspecified')}.`, `Evidence: ${finding.documentationUrl ? `[official Shopify reference](${finding.documentationUrl})` : 'No rule-specific reference available'}.`);
+    const lifecycle = finding.lifecycle ? ` — ${finding.lifecycle}` : '';
+    lines.push('', `### ${escape(finding.ruleId)} — ${escape(finding.riskLevel ?? 'medium')} risk${escape(lifecycle)}`, '', escape(finding.summary), '', `Risk rationale: ${escape(finding.riskRationale ?? 'Review the operational impact of this configuration change.')}`, '', 'Suggested action: Review the affected setting and intended behaviour before deployment.', '', `Category: ${escape(finding.category ?? 'unspecified')}.`, `Evidence: ${finding.documentationUrl ? `[official Shopify reference](${finding.documentationUrl})` : 'No rule-specific reference available'}.`);
 }
 export function renderMarkdown(report) {
     const files = report.files ?? [];
@@ -16,6 +17,9 @@ export function renderMarkdown(report) {
         `- Configurations requiring review: ${report.unreviewedFileCount ?? unreviewed.length}`,
         '- Findings are grouped by configuration file; environment names are not inferred from filenames.',
     ];
+    if (report.lifecycle) {
+        lines.push(`- New: ${report.lifecycle.newCount}; existing: ${report.lifecycle.existingCount}; resolved: ${report.lifecycle.resolvedCount}`);
+    }
     if (risks.length)
         lines.push('', '## Findings by risk', '', '| Risk | Count |', '| --- | ---: |', ...risks.map(([risk, count]) => `| ${risk} | ${count} |`));
     if (files.length)
@@ -35,6 +39,11 @@ export function renderMarkdown(report) {
         lines.push('', '## Incomplete reviews', '');
         for (const item of unreviewed)
             lines.push(`- \`${escape(item.path)}\`: ${escape(item.reason)}`);
+    }
+    if (report.resolvedFindings?.length) {
+        lines.push('', '## Resolved baseline findings', '');
+        for (const finding of report.resolvedFindings)
+            lines.push(`- \`${escape(finding.path)}\`: ${escape(finding.ruleId)} (${finding.count})`);
     }
     if (!findings.length && !unreviewed.length)
         lines.push('', 'No supported-field changes were found. This is not a deployment or security approval.');

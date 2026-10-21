@@ -3,6 +3,7 @@ export type SummaryReport = {
   unreviewed: unknown[];
   reviewedFileCount?: number;
   unreviewedFileCount?: number;
+  lifecycle?: { newCount: number; existingCount: number; resolvedCount: number };
 };
 
 export function renderSummary(report: SummaryReport): string {
@@ -38,6 +39,7 @@ export function renderSummary(report: SummaryReport): string {
     `- Unreviewable configurations: ${report.unreviewedFileCount ?? report.unreviewed.length}`,
     '', '### Review status', '',
   ];
+  if (report.lifecycle) lines.splice(7, 0, `- New: ${report.lifecycle.newCount}; existing: ${report.lifecycle.existingCount}; resolved: ${report.lifecycle.resolvedCount}`);
   if (risks.size) {
     lines.push('', '### Findings by risk', '', '| Risk | Count |', '| --- | ---: |');
     for (const risk of ['high', 'medium', 'low']) if (risks.has(risk)) lines.push(`| ${risk} | ${risks.get(risk)} |`);

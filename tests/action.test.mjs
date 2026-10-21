@@ -5,6 +5,8 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { compareConfigs } from '../dist/core.js';
+import { createBaseline } from '../dist/baseline.js';
 
 const action = fileURLToPath(new URL('../dist/action/index.js', import.meta.url));
 const oldConfig = '[access_scopes]\nscopes = "read_orders"\n';
@@ -31,7 +33,7 @@ function fixture(config, check) {
   }
 }
 
-function run(dir, base, head, policy, risk = 'none') {
+function run(dir, base, head, policy, risk = 'none', baselinePath = '', failOnNew = 'false') {
   const output = join(dir, 'output.txt');
   const summary = join(dir, 'summary.md');
   writeFileSync(output, '');
@@ -48,6 +50,8 @@ function run(dir, base, head, policy, risk = 'none') {
       INPUT_HEAD_SHA: head,
       INPUT_FAIL_ON: policy,
       INPUT_FAIL_ON_RISK: risk,
+      INPUT_BASELINE_PATH: baselinePath,
+      INPUT_FAIL_ON_NEW: failOnNew,
     },
   });
 }
@@ -67,6 +71,35 @@ test('bundled Action emits outputs and succeeds for informational findings', () 
     assert.match(outputs, /rule_ids<<ghadelimiter_/);
     assert.match(outputs, /findings/);
     assert.match(readFileSync(join(dir, 'summary.md'), 'utf8'), /Manual review recommended/);
+  });
+});
+
+test('Action reports baseline lifecycle, fails only on new findings, and retains existing risk policy', () => {
+  fixture(newConfig, ({ dir, base, head }) => {
+    const finding = compareConfigs(
+      { access_scopes: { scopes: 'read_orders' } },
+      { access_scopes: { scopes: 'read_orders,read_products' } },
+    )[0];
+    const known = createBaseline('git-all', [{ path: 'shopify.app.toml', finding }]);
+    writeFileSync(join(dir, 'baseline.json'), JSON.stringify(known));
+
+    const existing = run(dir, base, head, 'never', 'none', 'baseline.json', 'true');
+    assert.equal(existing.status, 0, `${existing.stdout}\n${existing.stderr}`);
+    const outputs = readFileSync(join(dir, 'output.txt'), 'utf8');
+    assert.match(outputs, /new_finding_count<<ghadelimiter_[^\n]+\n0/);
+    assert.match(outputs, /existing_finding_count<<ghadelimiter_[^\n]+\n1/);
+    assert.match(outputs, /resolved_finding_count<<ghadelimiter_[^\n]+\n0/);
+    assert.match(outputs, /EXISTING/);
+
+    const highRisk = run(dir, base, head, 'never', 'high', 'baseline.json', 'true');
+    assert.equal(highRisk.status, 1);
+    assert.match(highRisk.stdout + highRisk.stderr, /risk threshold/);
+
+    writeFileSync(join(dir, 'empty-baseline.json'), JSON.stringify(createBaseline('git-all', [])));
+    const introduced = run(dir, base, head, 'never', 'none', 'empty-baseline.json', 'true');
+    assert.equal(introduced.status, 1);
+    assert.match(introduced.stdout + introduced.stderr, /New review findings detected/);
+    assert.match(readFileSync(join(dir, 'output.txt'), 'utf8'), /new_finding_count<<ghadelimiter_[^\n]+\n1/);
   });
 });
 

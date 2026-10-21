@@ -1,6 +1,6 @@
 # Shopify app configuration support matrix
 
-Reviewed against Shopify's [app configuration reference](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration) and [configuration-file management guide](https://shopify.dev/docs/apps/build/cli-for-apps/manage-app-config-files) on 2026-09-27.
+Reviewed against Shopify's [app configuration reference](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration) and [configuration-file management guide](https://shopify.dev/docs/apps/build/cli-for-apps/manage-app-config-files) on 2026-10-21.
 
 ChangeGuard reviews semantic differences between configuration revisions. It does not replace `shopify app config validate --json`; Shopify CLI remains responsible for complete schema and value validation.
 
@@ -25,3 +25,5 @@ ChangeGuard reviews semantic differences between configuration revisions. It doe
 | `shopify.extension.toml` | Not supported in the current scope | Extension configuration is a separate type-specific system. |
 
 ChangeGuard is offline, read-only, deterministic, and independent from Shopify. It does not call Shopify APIs, approve deployments, certify security, or validate credentials.
+
+The CLI requires Node.js 22 or newer. CI covers Node.js 22 and 24. The GitHub Action uses the Node.js 24 Action runtime.

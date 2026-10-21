@@ -49,6 +49,11 @@ try {
   const head = git('rev-parse', 'HEAD');
   const gitResult = JSON.parse(run(cli, ['--base-ref', base, '--head-ref', head, '--file', 'shopify.app.toml', '--json'], { cwd: gitDir }));
   if (!gitResult.findings.length) throw new Error('Git package comparison produced no findings.');
+  run(cli, ['baseline', 'create', '--baseline', 'changeguard-baseline.json', '--base-ref', base, '--head-ref', head, '--all-configs'], { cwd: gitDir });
+  const baselineResult = JSON.parse(run(cli, ['baseline', 'check', '--baseline', 'changeguard-baseline.json', '--base-ref', base, '--head-ref', head, '--all-configs', '--json'], { cwd: gitDir }));
+  if (baselineResult.lifecycle?.existingCount !== 1 || baselineResult.lifecycle.newCount !== 0) {
+    throw new Error('Packaged baseline comparison did not classify the reviewed finding as existing.');
+  }
   console.log('Package smoke test passed.');
 } finally {
   rmSync(workspace, { recursive: true, force: true });

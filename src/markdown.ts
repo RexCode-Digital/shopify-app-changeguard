@@ -1,14 +1,24 @@
 import type { Finding } from './core.js';
 
 type ReviewFile = { path: string; status: string; findings: Finding[] };
-type MarkdownReport = { note: string; files?: ReviewFile[]; findings?: Finding[]; unreviewed?: Array<{ path: string; reason: string }>; reviewedFileCount?: number; unreviewedFileCount?: number };
+type MarkdownReport = {
+  note: string;
+  files?: ReviewFile[];
+  findings?: Finding[];
+  unreviewed?: Array<{ path: string; reason: string }>;
+  reviewedFileCount?: number;
+  unreviewedFileCount?: number;
+  lifecycle?: { newCount: number; existingCount: number; resolvedCount: number };
+  resolvedFindings?: Array<{ ruleId: string; path: string; count: number; lifecycle: 'RESOLVED' }>;
+};
 
 const escape = (value: unknown): string => String(value ?? '').replace(/[\\`*_{}\[\]()<>#+.!|]/g, '\\$&').replace(/[\r\n]+/g, ' ');
 
 function appendFinding(lines: string[], finding: Finding): void {
+  const lifecycle = finding.lifecycle ? ` — ${finding.lifecycle}` : '';
   lines.push(
     '',
-    `### ${escape(finding.ruleId)} — ${escape(finding.riskLevel ?? 'medium')} risk`,
+    `### ${escape(finding.ruleId)} — ${escape(finding.riskLevel ?? 'medium')} risk${escape(lifecycle)}`,
     '',
     escape(finding.summary),
     '',
@@ -35,6 +45,9 @@ export function renderMarkdown(report: MarkdownReport): string {
     `- Configurations requiring review: ${report.unreviewedFileCount ?? unreviewed.length}`,
     '- Findings are grouped by configuration file; environment names are not inferred from filenames.',
   ];
+  if (report.lifecycle) {
+    lines.push(`- New: ${report.lifecycle.newCount}; existing: ${report.lifecycle.existingCount}; resolved: ${report.lifecycle.resolvedCount}`);
+  }
   if (risks.length) lines.push('', '## Findings by risk', '', '| Risk | Count |', '| --- | ---: |', ...risks.map(([risk, count]) => `| ${risk} | ${count} |`));
   if (files.length) for (const file of files) {
     lines.push('', `## Configuration: \`${escape(file.path)}\``, '', `Status: ${file.status}.`);
@@ -48,6 +61,10 @@ export function renderMarkdown(report: MarkdownReport): string {
   if (unreviewed.length) {
     lines.push('', '## Incomplete reviews', '');
     for (const item of unreviewed) lines.push(`- \`${escape(item.path)}\`: ${escape(item.reason)}`);
+  }
+  if (report.resolvedFindings?.length) {
+    lines.push('', '## Resolved baseline findings', '');
+    for (const finding of report.resolvedFindings) lines.push(`- \`${escape(finding.path)}\`: ${escape(finding.ruleId)} (${finding.count})`);
   }
   if (!findings.length && !unreviewed.length) lines.push('', 'No supported-field changes were found. This is not a deployment or security approval.');
   return `${lines.join('\n')}\n`;

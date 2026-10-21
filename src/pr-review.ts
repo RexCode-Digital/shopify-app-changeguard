@@ -13,6 +13,8 @@ export type ReviewReport = {
   reviewedFileCount: number;
   unreviewedFileCount: number;
   ruleIds: string[];
+  lifecycle?: { newCount: number; existingCount: number; resolvedCount: number };
+  resolvedFindings?: Array<{ fingerprint: string; ruleId: string; path: string; field: string; riskLevel: 'low' | 'medium' | 'high'; count: number; lifecycle: 'RESOLVED' }>;
 };
 
 const validSha = /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/;

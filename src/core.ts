@@ -14,6 +14,7 @@ export type Finding = {
   documentationUrl?: string;
   riskLevel?: RiskLevel;
   riskRationale?: string;
+  lifecycle?: 'NEW' | 'EXISTING';
 };
 
 export type Config = Record<string, unknown>;
