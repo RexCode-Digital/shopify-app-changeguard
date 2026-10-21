@@ -20,7 +20,7 @@ with the following contents:
               fetch-depth: 0
               persist-credentials: false
 
-          - uses: RexCode-Digital/shopify-app-changeguard@67ef54c622788e11b33caab7d9da51ce07294512 # v0.5.2
+          - uses: RexCode-Digital/shopify-app-changeguard@1ad900a2dc4d8b83305642611a89ea8eb30e165a # v0.7.0
             with:
               base_sha: ${{ github.event.pull_request.base.sha }}
               head_sha: ${{ github.event.pull_request.head.sha }}
@@ -55,7 +55,7 @@ findings in the selected comparison are new. Missing or invalid baseline
 input fails the action. The Action reads the
 baseline and does not write or update it.
 
-The example above pins v0.5.2. That release does not support `fail_on_risk` or `risk_threshold_exceeded`; both are part of the unreleased changes here.
+The pinned v0.7.0 release supports `fail_on_risk` and `risk_threshold_exceeded`.
 
 Review outcomes:
 

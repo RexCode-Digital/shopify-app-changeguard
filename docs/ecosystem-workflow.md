@@ -25,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: RexCode-Digital/shopify-app-changeguard@1a3e21bfb9cc720b02eb1bc76c3c84672cb2d798 # v0.6.0
+      - uses: RexCode-Digital/shopify-app-changeguard@1ad900a2dc4d8b83305642611a89ea8eb30e165a # v0.7.0
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -38,7 +38,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: RexCode-Digital/shopify-upgrade-guard@4bb40f702743cfb0778707b826cb9898944787b4 # v0.3.0
+      - uses: RexCode-Digital/shopify-upgrade-guard@71f9cdca7d0b34b07c1dfb60c2dc649e2e595139 # v0.4.0
         with:
           target: 2026-10
           fail-on: warning
@@ -50,7 +50,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: RexCode-Digital/shopify-scope-guard@ec789d778fb2986589625f35c2f48c51259c8919 # v0.3.0
+      - uses: RexCode-Digital/shopify-scope-guard@da4d786f22049e2e96728918ebaaa1f362898d84 # v0.4.0
         with:
           fail-on: high
 

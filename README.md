@@ -83,7 +83,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: RexCode-Digital/shopify-app-changeguard@67ef54c622788e11b33caab7d9da51ce07294512 # v0.5.2
+      - uses: RexCode-Digital/shopify-app-changeguard@1ad900a2dc4d8b83305642611a89ea8eb30e165a # v0.7.0
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -113,7 +113,7 @@ Use an exact patch release tag or a full commit SHA. The historical `v0.5` alias
 
 The optional `fail_on_risk` policy is independent of `fail_on`: either policy can fail the job. `none` disables risk-based failure. The existing `fail_on` default and behaviour are unchanged; when it is `never`, an incomplete result remains visible as `outcome: incomplete` and is not represented as a complete review. Findings produce file-level GitHub warning annotations when a changed configuration file is known; no source line is inferred.
 
-The example above pins v0.5.2, which does not include `fail_on_risk` or `risk_threshold_exceeded`. These Action additions, along with the Markdown and risk-threshold CLI options below, are part of the unreleased changes here and are not available from npm v0.5.2.
+The pinned v0.7.0 release includes `fail_on_risk`, `risk_threshold_exceeded`, and the Markdown and risk-threshold CLI options described below.
 
 The bundled Action runs on GitHub's `node24` JavaScript Action runtime. Consumer jobs do not install project dependencies or compile ChangeGuard.
 
@@ -259,10 +259,10 @@ MIT — see [LICENSE](LICENSE).
 
 ## Immutable SHA usage
 
-The Action example pins the reviewed v0.5.2 release commit. Verify the release reference with:
+The Action example pins the reviewed v0.7.0 release commit. Verify the release reference with:
 
 ```bash
-git fetch --tags origin && git rev-parse 'v0.5.2^{commit}'
+git fetch --tags origin && git rev-parse 'v0.7.0^{commit}'
 ```
 
 Published patch tags are retained. The release workflow does not move existing tags; a reviewed full commit SHA is the immutable execution reference.
