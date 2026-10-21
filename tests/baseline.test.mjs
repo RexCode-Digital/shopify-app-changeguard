@@ -79,6 +79,15 @@ test('duplicate findings retain counts without duplicating baseline entries', ()
   assert.equal(result.resolvedFindings[0].count, 1);
 });
 
+test('baseline entries use locale-independent path ordering', () => {
+  const baseline = createBaseline('git-all', [
+    { path: 'a.toml', finding },
+    { path: 'Z.toml', finding },
+    { path: 'é.toml', finding },
+  ]);
+  assert.deepEqual(baseline.findings.map((item) => item.path), ['Z.toml', 'a.toml', 'é.toml']);
+});
+
 test('baseline version, comparison kind, fields, and fingerprints are validated', () => {
   const baseline = createBaseline('git-all', [{ path: 'shopify.app.toml', finding }]);
   assert.equal(validateBaseline(baseline).schemaVersion, 1);

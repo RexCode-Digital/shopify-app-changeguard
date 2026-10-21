@@ -63,7 +63,10 @@ export function createBaseline(kind, current) {
     };
 }
 function compareBaselineFinding(a, b) {
-    return a.path.localeCompare(b.path) || a.ruleId.localeCompare(b.ruleId) || a.field.localeCompare(b.field) || a.fingerprint.localeCompare(b.fingerprint);
+    return compareText(a.path, b.path) || compareText(a.ruleId, b.ruleId) || compareText(a.field, b.field) || compareText(a.fingerprint, b.fingerprint);
+}
+function compareText(a, b) {
+    return a < b ? -1 : a > b ? 1 : 0;
 }
 export function validateBaseline(value) {
     if (typeof value !== 'object' || value === null || Array.isArray(value))

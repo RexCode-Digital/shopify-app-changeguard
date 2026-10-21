@@ -9,7 +9,9 @@ jobs:
   test:
     strategy:
       matrix:
-        node: [22, 24]
+        # Keep the required Node 20 branch-protection check while testing the
+        # supported Node 22 and 24 runtimes. The package engine floor remains 22.
+        node: [20, 22, 24]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

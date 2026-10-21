@@ -90,7 +90,11 @@ export function createBaseline(kind: ComparisonKind, current: CurrentFinding[]):
 }
 
 function compareBaselineFinding(a: BaselineFinding, b: BaselineFinding): number {
-  return a.path.localeCompare(b.path) || a.ruleId.localeCompare(b.ruleId) || a.field.localeCompare(b.field) || a.fingerprint.localeCompare(b.fingerprint);
+  return compareText(a.path, b.path) || compareText(a.ruleId, b.ruleId) || compareText(a.field, b.field) || compareText(a.fingerprint, b.fingerprint);
+}
+
+function compareText(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 export function validateBaseline(value: unknown): Baseline {
