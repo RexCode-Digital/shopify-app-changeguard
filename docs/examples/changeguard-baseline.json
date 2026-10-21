@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "comparisonKind": "configuration-pair",
+  "findings": [
+    {
+      "fingerprint": "8e226958b24ce252bebd9f6054549e4f4d080cb74c588d3c6a62d8bc050db9c9",
+      "ruleId": "SCOPE_OPTIONAL_TO_REQUIRED",
+      "path": "shopify.app.toml",
+      "field": "access_scopes",
+      "riskLevel": "high",
+      "count": 1
+    }
+  ]
+}

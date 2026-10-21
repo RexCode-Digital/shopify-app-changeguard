@@ -17,7 +17,7 @@ ChangeGuard is an offline, read-only semantic reviewer for `shopify.app*.toml` c
 
 Maintained by RexCode Digital Ltd.
 
-Part of the **RexCode Shopify developer tools** suite. Requires Node.js 20 or later for the CLI. [Releases](https://github.com/RexCode-Digital/shopify-app-changeguard/releases) · [npm](https://www.npmjs.com/package/shopify-app-changeguard) · [Marketplace](https://github.com/marketplace/actions/changeguard-shopify-app-config-review)
+Part of the **RexCode Shopify developer tools** suite. Requires Node.js 22 or later for the CLI. [Releases](https://github.com/RexCode-Digital/shopify-app-changeguard/releases) · [npm](https://www.npmjs.com/package/shopify-app-changeguard) · [Marketplace](https://github.com/marketplace/actions/changeguard-shopify-app-config-review)
 
 ## Quick start
 
@@ -104,16 +104,20 @@ Use an exact patch release tag or a full commit SHA. The historical `v0.5` alias
 | `head_sha` | Pull request head commit SHA |
 | `fail_on` | Failure policy: `never`, `review`, or `unreviewed` |
 | `fail_on_risk` | Optional independent risk threshold: `none` (default), `low`, `medium`, or `high` |
+| `baseline_path` | Optional repository-relative path to a versioned baseline JSON file |
+| `fail_on_new` | Fail when the current review includes findings absent from the baseline |
 
 ### Action outputs
 
-`outcome`, `finding_count`, `highest_severity`, `highest_risk`, `risk_threshold_exceeded`, `report`, `reviewed_file_count`, `unreviewed_count`, and `rule_ids`.
+`outcome`, `finding_count`, `highest_severity`, `highest_risk`, `risk_threshold_exceeded`, `new_finding_count`, `existing_finding_count`, `resolved_finding_count`, `report`, `reviewed_file_count`, `unreviewed_count`, and `rule_ids`.
 
 The optional `fail_on_risk` policy is independent of `fail_on`: either policy can fail the job. `none` disables risk-based failure. The existing `fail_on` default and behaviour are unchanged; when it is `never`, an incomplete result remains visible as `outcome: incomplete` and is not represented as a complete review. Findings produce file-level GitHub warning annotations when a changed configuration file is known; no source line is inferred.
 
 The example above pins v0.5.2, which does not include `fail_on_risk` or `risk_threshold_exceeded`. These Action additions, along with the Markdown and risk-threshold CLI options below, are part of the unreleased changes here and are not available from npm v0.5.2.
 
 The bundled Action runs on GitHub's `node24` JavaScript Action runtime. Consumer jobs do not install project dependencies or compile ChangeGuard.
+
+When `baseline_path` is set, the report classifies findings as `NEW`, `EXISTING`, or `RESOLVED`. `fail_on_new: true` fails only for new findings; without a baseline file, findings in the selected comparison are all new. The independent `fail_on` and `fail_on_risk` policies still apply to every current finding. Lifecycle count outputs are empty only when neither `baseline_path` nor `fail_on_new` enables classification. A missing or malformed selected baseline fails the Action instead of being treated as an empty review.
 
 ## What it reviews
 
@@ -155,6 +159,8 @@ changeguard --before FILE --after FILE [--json]
 changeguard --before FILE --after FILE [--format human|json|markdown] [--fail-on ...] [--fail-on-risk none|low|medium|high]
 changeguard --base-ref REF --head-ref REF --file shopify.app.toml [--format human|json|markdown] [--fail-on ...] [--fail-on-risk ...]
 changeguard --base-ref REF --head-ref REF --all-configs [--format human|json|markdown] [--fail-on ...] [--fail-on-risk ...]
+changeguard baseline create --baseline changeguard-baseline.json --base-ref main --head-ref HEAD --all-configs
+changeguard baseline check --baseline changeguard-baseline.json --base-ref main --head-ref HEAD --all-configs --fail-on-new
 ```
 
 Examples:
@@ -177,6 +183,10 @@ npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --form
 ```
 
 `--fail-on never` and `--fail-on-risk none` are the defaults. `review` exits 1 when findings exist; a risk threshold exits 1 when a finding reaches that level. Input errors exit 2. In Git-range mode, incomplete reviews exit 2 under `review` or `unreviewed`; `never` reports them with an incomplete status without failing. Repository-wide reports group findings by configuration file and do not infer environment names from arbitrary filenames.
+
+Baselines snapshot findings from one explicit comparison (`configuration-pair`, `git-file`, or `git-all`); they do not store commit IDs, timestamps, configuration values, absolute paths, or finding summaries. Check a baseline only with the same comparison kind. Fingerprints are SHA-256 digests of the rule, normalized repository-relative configuration path, field, stable risk metadata, and redacted semantic summary. A rename is a new path identity, so findings at the new path are new and findings at the old path are resolved. Baseline creation requires a complete analysis and refuses to overwrite a file. Explicit file-pair comparisons outside the repository need `--config-path` to provide a safe relative identity.
+
+`--fail-on-new` fails when at least one finding is new. `--fail-on` and `--fail-on-risk` remain independent and inspect all current findings, including `EXISTING` findings. Incomplete Git reviews fail with exit code 2 when `--fail-on-new` is selected. A missing, malformed, unsupported-version, symlinked, or out-of-repository baseline is an input error; it is never treated as an empty baseline.
 
 See the [CLI reference](docs/cli.md).
 
@@ -220,6 +230,7 @@ Building or maintaining Shopify apps?
 All four tools run offline and require no Shopify credentials.
 
 See the [coordinated workflow example](docs/ecosystem-workflow.md) to run all four published Actions in one pull-request workflow.
+With side-by-side source checkouts, maintainers can run `node scripts/ecosystem-smoke.mjs` from ChangeGuard to exercise a synthetic consumer app against all four local CLIs under Node.js 22 or 24.
 
 ## Contributing
 

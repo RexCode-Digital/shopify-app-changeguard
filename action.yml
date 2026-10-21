@@ -20,6 +20,13 @@ inputs:
     description: 'Optional risk threshold: none, low, medium, or high'
     required: false
     default: none
+  baseline_path:
+    description: Optional repository-relative baseline JSON file to classify findings
+    required: false
+  fail_on_new:
+    description: Fail when the report contains findings absent from the selected baseline
+    required: false
+    default: 'false'
 
 outputs:
   outcome:
@@ -32,6 +39,12 @@ outputs:
     description: Highest deterministic review risk, or none
   risk_threshold_exceeded:
     description: Whether any finding reaches fail_on_risk
+  new_finding_count:
+    description: Number of new findings when baseline classification is enabled
+  existing_finding_count:
+    description: Number of existing findings when baseline classification is enabled
+  resolved_finding_count:
+    description: Number of resolved findings when baseline classification is enabled
   report:
     description: JSON review report
   reviewed_file_count:

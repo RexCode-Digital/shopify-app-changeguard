@@ -2,7 +2,7 @@
 
 ## Now
 
-- Keep comparisons deterministic, redacted, and well tested.
+- Keep comparisons and baseline lifecycle deterministic, redacted, and well tested.
 - Publish a trustworthy bundled Action and smoke-tested npm CLI.
 - Document supported fields and limitations without implying Shopify affiliation.
 

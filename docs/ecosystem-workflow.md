@@ -2,6 +2,12 @@
 
 This pull-request workflow runs the currently published ChangeGuard, Upgrade Guard, Scope Guard, and App Review Guard Actions as separate read-only checks. Each Action is pinned to the full commit SHA documented for its current patch release. `actions/checkout` fetches history for Upgrade Guard's base/head comparison and does not persist its token.
 
+## Local integration smoke test
+
+The synthetic consumer app in `ecosystem-fixtures/` exercises the local CLI checkouts without Shopify credentials, network services, or workflow permissions. With the four repository directories side by side, run `node scripts/ecosystem-smoke.mjs` from ChangeGuard under Node.js 22 or 24. Set `REXCODE_OSS_REPOS_DIR` to the parent directory if the checkouts are elsewhere. The script creates and removes a temporary Git repository, checks ChangeGuard's existing/new finding lifecycle, Upgrade Guard's 2027-01 `owner_type` finding, Scope Guard's missing product-read-scope evidence, and App Review Guard's Next.js webhook route review.
+
+This validates the local CLI implementations on the selected runtime. It does not exercise GitHub Actions or hosted CI. The workflow below continues to pin released Action commits; do not point it at an unreleased feature branch before review and release.
+
 ```yaml
 name: Shopify review tools
 
@@ -19,7 +25,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: RexCode-Digital/shopify-app-changeguard@67ef54c622788e11b33caab7d9da51ce07294512 # v0.5.2
+      - uses: RexCode-Digital/shopify-app-changeguard@1a3e21bfb9cc720b02eb1bc76c3c84672cb2d798 # v0.6.0
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
@@ -32,7 +38,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: RexCode-Digital/shopify-upgrade-guard@b0a6816f95d783f703bf031c9920004fbb865bc1 # v0.2.6
+      - uses: RexCode-Digital/shopify-upgrade-guard@4bb40f702743cfb0778707b826cb9898944787b4 # v0.3.0
         with:
           target: 2026-10
           fail-on: warning
@@ -44,7 +50,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: RexCode-Digital/shopify-scope-guard@30d08c644114399c0ee0257954205b97fb9fcbd3 # v0.2.4
+      - uses: RexCode-Digital/shopify-scope-guard@ec789d778fb2986589625f35c2f48c51259c8919 # v0.3.0
         with:
           fail-on: high
 
@@ -54,7 +60,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: RexCode-Digital/shopify-app-review-guard@14aa6c92d68c3f52ea06e8bb608328ce19f998d7 # v0.1.5
+      - uses: RexCode-Digital/shopify-app-review-guard@886a729183227ab742effcf7dfea32bbe9756e09 # v0.2.0
         with:
           format: human
           fail-on: high

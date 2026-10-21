@@ -4,7 +4,7 @@
   "description": "Offline semantic review of Shopify app configuration changes, with risk findings for CI and pull requests.",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "bin": {
     "changeguard": "dist/cli.js"
@@ -57,6 +57,7 @@
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
     "dist/cli.js",
+    "dist/baseline.js",
     "dist/client-id.js",
     "dist/core.js",
     "dist/git-refs.js",

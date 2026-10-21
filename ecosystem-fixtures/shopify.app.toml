@@ -1,0 +1,12 @@
+client_id = "a61950a2cbd5f32876b0b55587ec7a27"
+api_version = "2026-10"
+
+[access_scopes]
+scopes = ""
+
+[webhooks]
+api_version = "2026-10"
+
+[[webhooks.subscriptions]]
+topics = ["products/update"]
+uri = "https://shop.example.test/api/webhooks/products"

@@ -44,6 +44,17 @@ either policy can fail the job. `fail_on: never` retains its existing meaning;
 an incomplete result is exposed as `outcome: incomplete` even when the job is
 allowed to continue.
 
+Set `baseline_path` to a repository-relative versioned baseline JSON file to
+classify findings as `NEW`, `EXISTING`, or `RESOLVED`. Set `fail_on_new: true`
+to fail only on new findings. The existing `fail_on` and `fail_on_risk` policies
+remain independent and still apply to existing findings. The Action exposes
+`new_finding_count`, `existing_finding_count`, and `resolved_finding_count`
+when `baseline_path` or `fail_on_new` enables classification; these outputs
+are empty otherwise. With `fail_on_new: true` and no baseline file, all
+findings in the selected comparison are new. Missing or invalid baseline
+input fails the action. The Action reads the
+baseline and does not write or update it.
+
 The example above pins v0.5.2. That release does not support `fail_on_risk` or `risk_threshold_exceeded`; both are part of the unreleased changes here.
 
 Review outcomes:

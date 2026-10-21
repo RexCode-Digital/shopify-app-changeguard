@@ -1,0 +1,13 @@
+api_version = "2026-10"
+
+[[extensions]]
+type = "ui_extension"
+name = "Synthetic checkout extension"
+
+[[extensions.targeting]]
+target = "purchase.checkout.block.render"
+module = "./src/Checkout.tsx"
+
+[[extensions.metafields]]
+namespace = "$app:example"
+key = "customer_preference"
