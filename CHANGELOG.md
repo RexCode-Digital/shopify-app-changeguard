@@ -2,7 +2,10 @@
 
 ## Unreleased
 
+## 0.7.0
+
 - Add versioned, privacy-safe baselines that classify findings as new, existing, or resolved in CLI and Action reviews.
+- Stabilise baseline ordering across locales.
 - Breaking: require Node.js 22 or newer for the CLI; Node.js 20 is no longer supported. CI covers Node.js 22 and 24; the GitHub Action remains on `node24`.
 
 ## 0.6.0
