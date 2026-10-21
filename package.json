@@ -1,6 +1,6 @@
 {
   "name": "shopify-app-changeguard",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Offline semantic review of Shopify app configuration changes, with risk findings for CI and pull requests.",
   "type": "module",
   "engines": {
