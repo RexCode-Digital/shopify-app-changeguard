@@ -1,15 +1,17 @@
 # Security policy
 
-ChangeGuard is an unofficial, read-only review tool. It does not access Shopify or receive Shopify credentials.
+ChangeGuard is an offline developer tool. An ordinary scan reads repository files; it does not require Shopify credentials, call Shopify APIs, or upload scanned source.
 
 ## Supported versions
 
-Only the latest published release and the default branch are supported for security fixes while the project is below 1.0.0. Older experimental tags may be unavailable for fixes.
+The latest published release and the default branch receive security fixes. Upgrade to the latest release before reporting an issue.
 
 ## Report a vulnerability
 
-Use [GitHub private vulnerability reporting](https://github.com/RexCode-Digital/shopify-app-changeguard/security/advisories/new) for this repository. It is enabled for this public repository. Do not open a public issue for a suspected vulnerability. Include a minimal reproduction, affected version or commit, impact, and a safe mitigation if known.
+Use [GitHub private vulnerability reporting](https://github.com/RexCode-Digital/shopify-app-changeguard/security/advisories/new). Include the affected version, command or Action, impact, and a minimal sanitised reproduction. Do not include credentials, access tokens, private keys, merchant/customer data, private source, or production configuration.
 
-Never include secrets, customer data, private URLs, credentials, or production configuration. The maintainer will acknowledge, reproduce, assess, and publish a sanitised advisory or release note when appropriate. Response timing is not a guarantee.
+Please coordinate public disclosure with the maintainer while the report is assessed and a fix is prepared. Response time depends on maintainer availability; no response-time guarantee is offered.
 
-Sensitive areas include secret leakage, unsafe Git/ref handling, Action code execution, dependency or distribution compromise, and misleading security or Shopify-affiliation claims. ChangeGuard is not a complete security scanner.
+## Security boundaries
+
+Static analysis is bounded and cannot prove runtime behaviour, complete security, Shopify compliance, or App Store approval. Review each product's documentation for its specific evidence limits.

@@ -3,35 +3,66 @@ description: Report a reproducible ChangeGuard problem
 title: "bug: "
 labels: [bug, needs-triage]
 body:
-  - type: input
-    id: version
+  - type: markdown
     attributes:
-      label: ChangeGuard version
+      value: "Use a minimal sanitised example. Never include credentials, tokens, merchant/customer data, private source, or production secrets. For suspected vulnerabilities, use the private reporting link."
+  - type: input
+    id: tool-version
+    attributes:
+      label: Tool version
     validations:
       required: true
   - type: input
-    id: node
+    id: runtime
     attributes:
-      label: Node.js version
+      label: Node.js and npm versions
+      placeholder: Node.js 22.x; npm 10.x
+    validations:
+      required: true
+  - type: dropdown
+    id: operating-system
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
     validations:
       required: true
   - type: dropdown
     id: mode
     attributes:
       label: Execution mode
-      options: [CLI, GitHub Action]
+      options:
+        - CLI
+        - GitHub Action
+        - Other
     validations:
       required: true
   - type: textarea
-    id: configuration
+    id: reproduction
     attributes:
-      label: Minimal anonymised TOML
-      description: Remove secrets, credentials, private URLs, webhook destinations, and customer data.
+      label: Minimal sanitised reproduction
+      description: Use synthetic configuration and source where possible. Remove credentials, merchant data, private URLs, and secrets.
     validations:
       required: true
   - type: textarea
-    id: behaviour
+    id: expected
     attributes:
-      label: Expected and actual behaviour
+      label: Expected behaviour
     validations:
       required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Sanitised output
+      description: Optional. Remove private paths and any sensitive values.
+    validations:
+      required: false

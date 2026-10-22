@@ -5,4 +5,4 @@ contact_links:
     about: Do not report suspected vulnerabilities or include secrets in a public issue.
   - name: Support and usage questions
     url: https://github.com/RexCode-Digital/shopify-app-changeguard/blob/main/SUPPORT.md
-    about: Review the support guide before opening a usage question.
+    about: Use the support guide for safe reproductions and usage questions.

@@ -1,0 +1,54 @@
+name: Compatibility report
+description: Report a version-specific Shopify or runtime compatibility issue
+title: "compatibility: "
+labels: [needs-triage]
+body:
+  - type: markdown
+    attributes:
+      value: "Use a minimal sanitised example. Do not include credentials, merchant/customer data, private source, or production secrets."
+  - type: input
+    id: tool-version
+    attributes:
+      label: Tool version
+    validations:
+      required: true
+  - type: input
+    id: api-version
+    attributes:
+      label: Shopify API version or runtime/framework version
+      description: Use N/A when this report is not version-specific.
+    validations:
+      required: true
+  - type: input
+    id: surface
+    attributes:
+      label: Affected Shopify surface or integration
+    validations:
+      required: true
+  - type: input
+    id: evidence
+    attributes:
+      label: Official Shopify documentation or release note
+      description: Link the source that describes the expected behaviour.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal sanitised reproduction
+      description: Include only the relevant config/source pattern.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-observed
+    attributes:
+      label: Expected and observed behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: false-positive
+    attributes:
+      label: Similar behaviour that should not be affected
+      description: Optional, but useful when proposing a static-analysis rule.
+    validations:
+      required: false

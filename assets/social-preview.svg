@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+<title id="title">ChangeGuard — RexCode Open Source</title><desc id="desc">Semantic review of Shopify app configuration changes.</desc>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0A121B"/><stop offset="1" stop-color="#152433"/></linearGradient>
+ <radialGradient id="glow"><stop stop-color="#22B8B2" stop-opacity=".18"/><stop offset="1" stop-color="#22B8B2" stop-opacity="0"/></radialGradient>
+ <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#9DB4C8" stroke-opacity=".055" stroke-width="1"/></pattern>
+</defs>
+<rect width="1280" height="640" fill="url(#bg)"/><rect width="1280" height="640" fill="url(#grid)"/><circle cx="1030" cy="320" r="320" fill="url(#glow)"/>
+<rect x="84" y="80" width="54" height="5" rx="2.5" fill="#22B8B2"/>
+<text x="84" y="128" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="20" font-weight="700" letter-spacing="3" fill="#79DED9">REXCODE OPEN SOURCE</text>
+<text x="84" y="214" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" font-weight="600" letter-spacing="2" fill="#79BCE8">SHOPIFY DEVELOPER TOOLS</text>
+<text x="80" y="302" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="61" font-weight="700" letter-spacing="-1.4" fill="#F5F8FA">ChangeGuard</text>
+<text x="84" y="374" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="26" fill="#B8C6D3">Semantic review of</text><text x="84" y="412" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="26" fill="#B8C6D3">Shopify app configuration changes.</text>
+<line x1="84" y1="494" x2="850" y2="494" stroke="#6D8091" stroke-opacity=".45"/>
+<text x="84" y="536" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="18" fill="#A7B6C4">RexCode Digital Ltd · independent open-source software</text>
+<g transform="translate(1032 278)" fill="none" stroke="#22B8B2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M0 0h70M0 80h70M30 0v34m0 12v34"/><circle cx="30" cy="40" r="8" fill="#0A121B"/><circle cx="0" cy="0" r="8" fill="#0A121B"/><circle cx="70" cy="0" r="8" fill="#0A121B"/><circle cx="0" cy="80" r="8" fill="#0A121B"/><circle cx="70" cy="80" r="8" fill="#0A121B"/></g>
+<circle cx="1032" cy="322" r="98" fill="none" stroke="#79BCE8" stroke-opacity=".32"/>
+<circle cx="1032" cy="322" r="120" fill="none" stroke="#79BCE8" stroke-opacity=".12"/>
+</svg>

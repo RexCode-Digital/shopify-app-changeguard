@@ -1,76 +1,43 @@
 # ChangeGuard
 
-**Review meaningful Shopify app configuration changes before they reach production.**
+Review Shopify app configuration changes in CI with semantic diffs and risk findings.
+
+**RexCode Open Source · Shopify developer tools**
 
 [![npm](https://img.shields.io/npm/v/shopify-app-changeguard?logo=npm)](https://www.npmjs.com/package/shopify-app-changeguard)
-[![npm downloads](https://img.shields.io/npm/dm/shopify-app-changeguard?logo=npm)](https://www.npmjs.com/package/shopify-app-changeguard)
 [![CI](https://github.com/RexCode-Digital/shopify-app-changeguard/actions/workflows/ci.yml/badge.svg)](https://github.com/RexCode-Digital/shopify-app-changeguard/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/RexCode-Digital/shopify-app-changeguard/actions/workflows/codeql.yml/badge.svg)](https://github.com/RexCode-Digital/shopify-app-changeguard/actions/workflows/codeql.yml)
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/RexCode-Digital/shopify-app-changeguard/badge)](https://securityscorecards.dev/viewer/?uri=github.com/RexCode-Digital/shopify-app-changeguard)
-[![license](https://img.shields.io/github/license/RexCode-Digital/shopify-app-changeguard)](LICENSE)
+[![Node.js 22+](https://img.shields.io/badge/Node.js-22+-22B8B2?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![MIT licence](https://img.shields.io/github/license/RexCode-Digital/shopify-app-changeguard)](LICENSE)
 
-ChangeGuard is an offline, read-only semantic reviewer for `shopify.app*.toml` changes. It helps reviewers see configuration changes that deserve attention, assigns deterministic risk levels, and redacts sensitive configuration values from findings and summaries.
+ChangeGuard compares supported Shopify app configuration fields and explains semantic risks before changes are merged or deployed. It is a read-only CLI and GitHub Action; Shopify CLI remains responsible for validating the complete configuration schema.
 
-**No Shopify credentials. No telemetry. No source upload. No Shopify API calls.**
+## Features
 
-> Unofficial open-source developer tooling. Not affiliated with, endorsed by, or certified by Shopify.
+- Explains changes to supported app configuration fields rather than only printing a text diff.
+- Classifies baseline findings as new, existing or resolved with deterministic fingerprints.
+- Redacts sensitive values and validates paths and Git references.
+- Uses the same report model in the CLI and Action.
 
-Maintained by RexCode Digital Ltd.
+## Install and run
 
-Part of the **RexCode Shopify developer tools** suite. Requires Node.js 22 or later for the CLI. [Releases](https://github.com/RexCode-Digital/shopify-app-changeguard/releases) · [npm](https://www.npmjs.com/package/shopify-app-changeguard) · [Marketplace](https://github.com/marketplace/actions/changeguard-shopify-app-config-review)
-
-## Quick start
-
-Compare two Shopify app configuration files without installing globally:
-
-```bash
-npx shopify-app-changeguard --before shopify.app.before.toml --after shopify.app.toml
-```
-
-JSON output:
-
-```bash
-npx shopify-app-changeguard --before shopify.app.before.toml --after shopify.app.toml --json
-```
-
-Review a Git diff:
-
-```bash
-npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs
-```
-
-Or install it in a project:
+Requires Node.js 22 or later.
 
 ```bash
 npm install --save-dev shopify-app-changeguard
-npx changeguard --base-ref main --head-ref HEAD --all-configs
+npx changeguard --before path/to/before.toml --after path/to/after.toml
 ```
 
-## Why ChangeGuard?
-
-Shopify app configuration files can change behaviour without looking like application-code changes. A small TOML diff can alter access scopes, OAuth redirects, webhook delivery, app identity, proxy behaviour, POS settings, or development configuration.
-
-ChangeGuard turns those diffs into a focused review report.
-
-- **Semantic review** — highlights meaningful configuration changes instead of raw line noise.
-- **Deterministic risk levels** — each finding is labelled `low`, `medium`, or `high` with a rationale.
-- **Privacy-first** — sensitive values are redacted from findings and summaries.
-- **PR-ready** — runs as a bundled GitHub Action with no dependency install in consumer jobs.
-- **Offline by design** — ordinary review needs no Shopify credentials, network service, or API access.
-- **Stable automation** — machine-readable JSON, stable rule IDs, and Action outputs for CI policy.
-
-Risk levels are review guidance, not Shopify validation, security certification, or deployment approval.
+Compare two files or a Git range. Run `npx changeguard --help` for the available options, or read the [CLI guide](docs/cli.md).
 
 ## GitHub Action
 
-A minimal pull-request workflow:
+Pin the reviewed v0.7.0 release commit:
 
 ```yaml
-name: Shopify app configuration review
-
-on:
-  pull_request:
-
+name: Review Shopify app configuration
+on: [pull_request]
 permissions:
   contents: read
 
@@ -81,188 +48,59 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-          persist-credentials: false
-
       - uses: RexCode-Digital/shopify-app-changeguard@1ad900a2dc4d8b83305642611a89ea8eb30e165a # v0.7.0
+        id: review
         with:
           base_sha: ${{ github.event.pull_request.base.sha }}
           head_sha: ${{ github.event.pull_request.head.sha }}
-          fail_on: review
+          fail_on: unreviewed
 ```
 
-For security-sensitive workflows, pin third-party Actions to a reviewed immutable commit SHA rather than `main`.
+Inputs include `base_sha`, `head_sha`, `fail_on`, `fail_on_risk`, `baseline_path` and `fail_on_new`. Outputs include the outcome, finding and baseline counts, highest severity/risk, reviewed and unreviewed file counts, rule IDs and JSON report. See the full [Action interface](action.yml).
 
-See the [Action guide](docs/github-action.md) and [copy-paste workflow example](examples/changeguard-workflow.yml).
-
-Use an exact patch release tag or a full commit SHA. The historical `v0.5` alias is retained but is no longer moved by the release workflow.
-
-### Action inputs
-
-| Input | Purpose |
-| --- | --- |
-| `base_sha` | Pull request base commit SHA |
-| `head_sha` | Pull request head commit SHA |
-| `fail_on` | Failure policy: `never`, `review`, or `unreviewed` |
-| `fail_on_risk` | Optional independent risk threshold: `none` (default), `low`, `medium`, or `high` |
-| `baseline_path` | Optional repository-relative path to a versioned baseline JSON file |
-| `fail_on_new` | Fail when the current review includes findings absent from the baseline |
-
-### Action outputs
-
-`outcome`, `finding_count`, `highest_severity`, `highest_risk`, `risk_threshold_exceeded`, `new_finding_count`, `existing_finding_count`, `resolved_finding_count`, `report`, `reviewed_file_count`, `unreviewed_count`, and `rule_ids`.
-
-The optional `fail_on_risk` policy is independent of `fail_on`: either policy can fail the job. `none` disables risk-based failure. The existing `fail_on` default and behaviour are unchanged; when it is `never`, an incomplete result remains visible as `outcome: incomplete` and is not represented as a complete review. Findings produce file-level GitHub warning annotations when a changed configuration file is known; no source line is inferred.
-
-The pinned v0.7.0 release includes `fail_on_risk`, `risk_threshold_exceeded`, and the Markdown and risk-threshold CLI options described below.
-
-The bundled Action runs on GitHub's `node24` JavaScript Action runtime. Consumer jobs do not install project dependencies or compile ChangeGuard.
-
-When `baseline_path` is set, the report classifies findings as `NEW`, `EXISTING`, or `RESOLVED`. `fail_on_new: true` fails only for new findings; without a baseline file, findings in the selected comparison are all new. The independent `fail_on` and `fail_on_risk` policies still apply to every current finding. Lifecycle count outputs are empty only when neither `baseline_path` nor `fail_on_new` enables classification. A missing or malformed selected baseline fails the Action instead of being treated as an empty review.
-
-## What it reviews
-
-| Area | Review behaviour |
-| --- | --- |
-| Required and optional access scopes | Additions, removals, and required/optional transitions |
-| `client_id` | Added, removed, or changed, without printing the ID |
-| App identity and settings | `name`, `application_url`, `embedded`, and `handle` changes |
-| OAuth | `auth.redirect_urls` set changes, without printing URLs |
-| Admin Direct API | Enablement and online/offline mode changes |
-| Customer authentication | Redirect, origin, and logout URL set changes, without printing values |
-| Installation flow | `access_scopes.use_legacy_install_flow` changes |
-| App proxy, POS, preferences | Proxy enablement/destination/route, `pos.embedded`, and preferences URL changes, without printing URLs |
-| Project discovery/build | Extension/web directory sets and automatic development URL update policy |
-| Webhooks | API version and subscription route/delivery changes, without printing destinations, topics, filters, or field names |
-| Events | API version and subscription changes, without printing handles, destinations, topics, triggers, queries, or filters |
-| Config lifecycle | Added, removed, or renamed named `shopify.app*.toml` files |
-
-Supported semantics follow the current [Shopify app configuration documentation](https://shopify.dev/docs/apps/build/cli-for-apps/app-configuration).
-
-See the [support matrix](docs/support-matrix.md) for supported, ignored, delegated, and intentionally non-planned areas.
-
-## Risk model
-
-Every finding includes a deterministic risk level and a concise rationale.
-
-- **low** — review-worthy change with limited expected operational impact
-- **medium** — change that can affect integration or application behaviour and deserves focused review
-- **high** — change with broader permission, authentication, delivery, or operational consequences
-
-The risk model is deliberately deterministic so CI and human reviewers see the same classification for the same semantic change.
-
-It is not a claim that a configuration is secure, valid, or approved by Shopify.
-
-## CLI
+## Example output
 
 ```text
-changeguard --before FILE --after FILE [--json]
-changeguard --before FILE --after FILE [--format human|json|markdown] [--fail-on ...] [--fail-on-risk none|low|medium|high]
-changeguard --base-ref REF --head-ref REF --file shopify.app.toml [--format human|json|markdown] [--fail-on ...] [--fail-on-risk ...]
-changeguard --base-ref REF --head-ref REF --all-configs [--format human|json|markdown] [--fail-on ...] [--fail-on-risk ...]
-changeguard baseline create --baseline changeguard-baseline.json --base-ref main --head-ref HEAD --all-configs
-changeguard baseline check --baseline changeguard-baseline.json --base-ref main --head-ref HEAD --all-configs --fail-on-new
+ChangeGuard v0.7.0
+Only documented semantic changes in supported Shopify app configuration fields are examined; Shopify CLI remains responsible for schema validation and unsupported fields are not checked.
+[REVIEW] SCOPE_OPTIONAL_TO_REQUIRED: scope changed from optional to required: read_products
+1 finding(s).
 ```
 
-Examples:
+This is the output for the repository's synthetic before/after fixtures.
 
-```bash
-# Compare synthetic fixtures from this repository
-npx shopify-app-changeguard --before examples/before.toml --after examples/after.toml
+## Supported capabilities and evidence
 
-# Machine-readable output
-npx shopify-app-changeguard --before examples/before.toml --after examples/after.toml --json
+ChangeGuard recognises a documented subset of Shopify app configuration fields. It reports supported semantic changes and risk rationale; it does not validate every TOML field or replace Shopify CLI. See [supported rules](docs/rules.md), the [risk model](docs/architecture.md), and the [support matrix](docs/support-matrix.md).
 
-# Review every named Shopify app configuration changed against main
-npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --json
+## Limitations and privacy
 
-# Fail CI when review findings exist
-npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --fail-on review
+ChangeGuard does not call Shopify APIs, require Shopify credentials, execute repository code, or send configuration to a service. Static review cannot establish whether unsupported fields are valid or guarantee deployment safety. Use synthetic fixtures in issues and remove tokens, client secrets, private URLs, webhook destinations and merchant data.
 
-# Write a Markdown report and fail only for high-risk findings
-npx shopify-app-changeguard --base-ref main --head-ref HEAD --all-configs --format markdown --fail-on-risk high
-```
+## Documentation
 
-`--fail-on never` and `--fail-on-risk none` are the defaults. `review` exits 1 when findings exist; a risk threshold exits 1 when a finding reaches that level. Input errors exit 2. In Git-range mode, incomplete reviews exit 2 under `review` or `unreviewed`; `never` reports them with an incomplete status without failing. Repository-wide reports group findings by configuration file and do not infer environment names from arbitrary filenames.
+- [Getting started](docs/getting-started.md)
+- [CLI reference](docs/cli.md)
+- [GitHub Action](docs/github-action.md)
+- [Threat model](docs/threat-model.md)
+- [Ecosystem workflow](docs/ecosystem-workflow.md)
 
-Baselines snapshot findings from one explicit comparison (`configuration-pair`, `git-file`, or `git-all`); they do not store commit IDs, timestamps, configuration values, absolute paths, or finding summaries. Check a baseline only with the same comparison kind. Fingerprints are SHA-256 digests of the rule, normalized repository-relative configuration path, field, stable risk metadata, and redacted semantic summary. A rename is a new path identity, so findings at the new path are new and findings at the old path are resolved. Baseline creation requires a complete analysis and refuses to overwrite a file. Explicit file-pair comparisons outside the repository need `--config-path` to provide a safe relative identity.
+## Related RexCode OSS tools
 
-`--fail-on-new` fails when at least one finding is new. `--fail-on` and `--fail-on-risk` remain independent and inspect all current findings, including `EXISTING` findings. Incomplete Git reviews fail with exit code 2 when `--fail-on-new` is selected. A missing, malformed, unsupported-version, symlinked, or out-of-repository baseline is an input error; it is never treated as an empty baseline.
+- [Shopify Upgrade Guard](https://github.com/RexCode-Digital/shopify-upgrade-guard) checks documented API and platform migration risks.
+- [Shopify Scope Guard](https://github.com/RexCode-Digital/shopify-scope-guard) reviews declared scopes against supported static evidence.
+- [Shopify App Review Guard](https://github.com/RexCode-Digital/shopify-app-review-guard) reports App Store and production-readiness evidence.
 
-See the [CLI reference](docs/cli.md).
+See the [four-tool workflow example](docs/ecosystem-workflow.md).
 
-## Security and privacy
+## Contributing and support
 
-ChangeGuard treats repository content as untrusted input and is intentionally narrow.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and the [RexCode Open Source standards](https://github.com/RexCode-Digital/.github/blob/main/docs/oss/standards.md). Use [SUPPORT.md](SUPPORT.md) or the [issue tracker](https://github.com/RexCode-Digital/shopify-app-changeguard/issues) for safe usage questions and reproducible reports.
 
-It:
+## Security
 
-- does not execute scanned Shopify configuration
-- does not call Shopify APIs
-- does not require Shopify credentials
-- does not upload configuration to a service
-- redacts sensitive configuration values from findings and summaries
-- uses bounded, reviewable comparison behaviour
-- ships a bundled Action so consumer workflows do not run an install step for ChangeGuard
+Report suspected vulnerabilities privately through [SECURITY.md](SECURITY.md). Do not include production configuration or secrets in public issues.
 
-See [SECURITY.md](SECURITY.md), [SUPPORT.md](SUPPORT.md), and the project documentation in [docs/](docs/).
+## Licence and affiliation
 
-## Non-goals
-
-ChangeGuard does **not**:
-
-- deploy or approve deployments
-- replace Shopify schema validation
-- certify application security
-- validate credentials
-- act as a complete vulnerability scanner
-- collect telemetry
-
-It highlights changes that deserve human review.
-
-## Related Shopify developer tools
-
-Building or maintaining Shopify apps?
-
-- **[Shopify Upgrade Guard](https://github.com/RexCode-Digital/shopify-upgrade-guard)** — Catch documented Shopify API and platform upgrade risks before production migrations.
-- **[Shopify Scope Guard](https://github.com/RexCode-Digital/shopify-scope-guard)** — Audit whether declared Shopify access scopes are supported by offline code evidence.
-- **[Shopify App Review Guard](https://github.com/RexCode-Digital/shopify-app-review-guard)** — Run deterministic preflight checks for Shopify App Store and production readiness.
-
-All four tools run offline and require no Shopify credentials.
-
-See the [coordinated workflow example](docs/ecosystem-workflow.md) to run all four published Actions in one pull-request workflow.
-With side-by-side source checkouts, maintainers can run `node scripts/ecosystem-smoke.mjs` from ChangeGuard to exercise a synthetic consumer app against all four local CLIs under Node.js 22 or 24.
-
-## Contributing
-
-Contributions are welcome, especially around new evidence-backed configuration semantics, redaction hardening, privacy-safe fixtures, and deterministic review quality.
-
-A rule or semantic change should include:
-
-1. the Shopify configuration behaviour being reviewed
-2. current official Shopify documentation where relevant
-3. a positive fixture
-4. an unchanged/negative case
-5. ordering/set-behaviour coverage where relevant
-6. redaction coverage for any sensitive values
-
-Start with [CONTRIBUTING.md](CONTRIBUTING.md) or browse the [open issues](https://github.com/RexCode-Digital/shopify-app-changeguard/issues).
-
-## Roadmap
-
-Current priorities are deterministic/redacted review quality, privacy-safe fixture coverage, additional high-value documented fields, and stronger evidence of external use without telemetry.
-
-See [ROADMAP.md](ROADMAP.md).
-
-## License
-
-MIT — see [LICENSE](LICENSE).
-
-## Immutable SHA usage
-
-The Action example pins the reviewed v0.7.0 release commit. Verify the release reference with:
-
-```bash
-git fetch --tags origin && git rev-parse 'v0.7.0^{commit}'
-```
-
-Published patch tags are retained. The release workflow does not move existing tags; a reviewed full commit SHA is the immutable execution reference.
+MIT licensed. Shopify and related marks are owned by their respective holders. ChangeGuard is independent open-source software and is not affiliated with, endorsed by, or certified by Shopify.
