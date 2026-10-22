@@ -1,32 +1,13 @@
 # Contributing to ChangeGuard
 
-Thanks for helping improve ChangeGuard.
+Contributions are welcome around semantic Shopify app configuration review, risk explanations, path/ref safety, privacy-preserving redaction, and deterministic fixtures.
 
-The project deliberately prefers **small, deterministic, privacy-safe review semantics** over a large noisy rule catalogue. ChangeGuard should help a human reviewer understand meaningful Shopify app configuration changes without exposing sensitive values.
+This project is MIT licensed. You retain copyright in your contributions and confirm you have the right to submit them. Identify third-party code and assets with their applicable licences.
 
-## Good contribution areas
+Use Node.js 22 or newer. Install the locked dependencies and run the relevant checks before opening a pull request:
 
-- Additional high-value Shopify app configuration semantics backed by current official documentation
-- Redaction hardening
-- False-positive reductions
-- Privacy-safe fixture coverage
-- Deterministic risk rationale improvements
-- Cross-platform Git/ref handling
-- GitHub Action and CLI reliability
-- Documentation and reproducible examples
-
-Browse the [open issues](https://github.com/RexCode-Digital/shopify-app-changeguard/issues) for current work.
-
-## Contribution terms
-
-You retain copyright in your contributions. By submitting a contribution, you agree that it is provided under the same MIT licence that applies to this project. You confirm that you have the right to submit the contribution. Disclose any third-party code or assets and identify their applicable licences before including them.
-
-## Development
-
-Requires Node.js 22 or newer. CI covers Node.js 22 and 24; the bundled GitHub Action uses the Node.js 24 runtime.
-
-```bash
-npm ci --ignore-scripts
+```sh
+npm ci
 npm test
 npm run coverage
 npm run lint
@@ -37,55 +18,8 @@ npm run action:check
 npm run format:check
 ```
 
-Use `npm run build` when source changes affect generated output. After rebuilding, ensure the committed Action bundle is deterministic and clean.
+Add a regression test for each behaviour change. Keep fixtures synthetic and sanitised. Link current official Shopify evidence for Shopify-specific rules or mappings, and include a negative case where static detection could otherwise produce a false positive. Keep output deterministic and preserve the product's uncertainty and privacy boundaries.
 
-## Semantic-change checklist
+The project follows a solo-maintainer review model. Use a focused pull request and record the checks actually run. Human approval is not a branch-protection requirement; automated checks remain required. AI-assisted contributions are welcome. Contributors are responsible for reviewing and understanding every submitted change.
 
-For comparison or rule changes, include:
-
-1. the Shopify configuration behaviour being reviewed
-2. current official Shopify documentation where relevant
-3. a positive change fixture
-4. an unchanged or negative case
-5. ordering/set behaviour where relevant
-6. sensitive-value redaction coverage
-7. stable rule/risk behaviour where applicable
-
-Unsupported or malformed configuration must never be silently reported as clean.
-
-## Safety principles
-
-Do not add:
-
-- telemetry
-- Shopify credentials
-- Shopify network/API calls for ordinary review
-- unsafe shell interpolation
-- execution of repository configuration
-- raw sensitive values in findings, errors, summaries, or tests
-
-Never commit real merchant configuration, credentials, customer data, private URLs, webhook destinations, or access tokens.
-
-## Pull requests
-
-Keep PRs focused. Explain:
-
-- the problem
-- the intended reviewer behaviour
-- any Shopify documentation relied on
-- privacy/redaction implications
-- commands run and their results
-
-AI-assisted contributions are welcome, but the human submitter must review and understand the change.
-
-These repositories use a solo-maintainer review model. Keep changes in pull requests and merge only after the required automated checks pass. CODEOWNERS may route review requests, but human approval is not a merge requirement.
-
-## Coverage
-
-Current coverage gates protect comparison and redaction paths. Do not weaken them to land a change.
-
-## Security
-
-Use [GitHub private vulnerability reporting](https://github.com/RexCode-Digital/shopify-app-changeguard/security/advisories/new) for suspected vulnerabilities. Do not disclose security-sensitive details in public issues.
-
-ChangeGuard does not certify Shopify compliance, security, or deployment safety.
+Read the shared [RexCode Open Source standards](https://github.com/RexCode-Digital/.github/blob/main/docs/oss/standards.md). For security reports, use [SECURITY.md](SECURITY.md); for safe usage questions, use [SUPPORT.md](SUPPORT.md).

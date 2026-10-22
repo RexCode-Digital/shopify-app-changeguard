@@ -1,5 +1,5 @@
 # Support
 
-Use GitHub Issues for reproducible bugs and feature requests. Use private vulnerability reporting for security issues; do not post secrets or production configuration.
+Use [GitHub Issues](https://github.com/RexCode-Digital/shopify-app-changeguard/issues) for reproducible bugs, documentation problems, and focused feature requests. Include the ChangeGuard version, command or Action configuration, Node.js/npm and operating system versions, a minimal sanitised reproduction, and expected and actual behaviour. For CLI reports include the before/after fixture. For Action reports include the base and head SHAs, but never private configuration.
 
-Include the ChangeGuard version, Node version, execution mode, a minimal anonymised TOML fixture, expected behaviour, and actual behaviour. Remove credentials, client secrets, private URLs, webhook destinations, and customer data.
+Remove credentials, tokens, merchant/customer data, private source, private URLs, and production secrets. Do not post suspected vulnerabilities publicly; follow [SECURITY.md](SECURITY.md) for private reporting.

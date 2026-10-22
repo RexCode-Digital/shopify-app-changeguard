@@ -1,22 +1,42 @@
 name: Feature request
-description: Propose a useful, evidence-backed improvement
+description: Describe a focused improvement and the developer problem it solves
 title: "feature: "
 labels: [enhancement, needs-triage]
 body:
+  - type: markdown
+    attributes:
+      value: "Do not include credentials, merchant/customer data, private source, or production secrets."
   - type: textarea
     id: problem
     attributes:
-      label: Problem
+      label: Problem and use case
+      description: What task is difficult today, and who needs the change?
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
-      label: Proposed behaviour and anonymised example
+      label: Proposed behaviour
+      description: Describe the smallest useful change and an example.
     validations:
       required: true
   - type: input
-    id: documentation
+    id: evidence
     attributes:
-      label: Official Shopify documentation link
-      description: Required when the request depends on Shopify semantics.
+      label: Official Shopify documentation or other evidence
+      description: Link an official source when the request depends on Shopify behaviour.
+    validations:
+      required: false
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility considerations
+      description: Note affected API versions, runtimes, frameworks, or existing workflows.
+    validations:
+      required: false
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false

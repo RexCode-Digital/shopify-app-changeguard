@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: RexCode-Digital/shopify-app-review-guard@886a729183227ab742effcf7dfea32bbe9756e09 # v0.2.0
+      - uses: RexCode-Digital/shopify-app-review-guard@83498086f93ccceaeec938003f3167b905fedbe5 # v0.3.0
         with:
           format: human
           fail-on: high
